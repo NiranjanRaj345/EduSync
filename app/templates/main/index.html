@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center text-center py-5">
+        <div class="col-md-8">
+            <h1 class="display-4 mb-4">University Document System</h1>
+            <p class="lead mb-4">
+                A secure platform for students to submit documents and receive faculty feedback.
+            </p>
+            
+            {% if not current_user.is_authenticated %}
+                <div class="row justify-content-center gap-3">
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>For Students</h3>
+                                <p>Submit your documents securely and track review status.</p>
+                                <a href="{{ url_for('auth.signup') }}?role=student" class="btn btn-primary">Register as Student</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>For Faculty</h3>
+                                <p>Review student submissions and provide feedback.</p>
+                                <a href="{{ url_for('auth.signup') }}?role=faculty" class="btn btn-primary">Register as Faculty</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Welcome, {{ current_user.first_name }}!</h3>
+                        {% if current_user.role == 'student' %}
+                            <p>You can upload documents and track their review status from your dashboard.</p>
+                            <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                        {% else %}
+                            <p>You can review student submissions and provide feedback from your dashboard.</p>
+                            <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Secure Upload</h3>
+                    <p>All documents are securely stored and accessible only to authorized users.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Track Progress</h3>
+                    <p>Students can track the review status of their submitted documents.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Quick Feedback</h3>
+                    <p>Faculty can easily review and provide feedback on student submissions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

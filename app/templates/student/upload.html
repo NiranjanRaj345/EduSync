@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Document{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Upload Document</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="document" class="form-label">Select Document</label>
+                            <input type="file" class="form-control" id="document" name="document" required>
+                            <div class="form-text">
+                                Allowed file types: PDF, DOC, DOCX, TXT, PNG, JPG, JPEG, GIF
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h5>Important Notes:</h5>
+                            <ul class="mb-0">
+                                <li>Maximum file size: 16MB</li>
+                                <li>Your document will be visible to faculty members for review</li>
+                                <li>You'll receive a notification when faculty provides feedback</li>
+                                <li>You can track the review status from your dashboard</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cloud-upload"></i> Upload Document
+                            </button>
+                            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('document').addEventListener('change', function(e) {
+    // Get the file
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (16MB = 16 * 1024 * 1024 bytes)
+    const maxSize = 16 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('File is too large. Maximum size is 16MB.');
+        this.value = ''; // Clear the input
+        return;
+    }
+
+    // Check file type
+    const allowedTypes = ['pdf', 'doc', 'docx', 'txt', 'png', 'jpg', 'jpeg', 'gif'];
+    const fileType = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileType)) {
+        alert('File type not allowed. Please select an allowed file type.');
+        this.value = ''; // Clear the input
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Review{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Document Details</h4>
+                </div>
+                <div class="card-body">
+                    <h5>{{ document.original_filename }}</h5>
+                    <p>
+                        <strong>Uploaded by:</strong> 
+                        {{ document.uploader.first_name }} {{ document.uploader.last_name }}
+                        <br>
+                        <strong>Upload Date:</strong> 
+                        {{ document.upload_date.strftime('%Y-%m-%d %H:%M') }}
+                    </p>
+                    <a href="{{ url_for('main.uploaded_file', filename=document.file_path) }}" 
+                       class="btn btn-outline-primary" target="_blank">
+                        View Document
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Upload Review Files</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <!-- First Review File -->
+                        <div class="mb-4">
+                            <label for="review_file_1" class="form-label">Review File 1</label>
+                            <input type="file" class="form-control" id="review_file_1" name="review_file_1">
+                            <div class="form-text">
+                                Upload your primary review/feedback file
+                            </div>
+                        </div>
+
+                        <!-- Second Review File -->
+                        <div class="mb-4">
+                            <label for="review_file_2" class="form-label">Review File 2 (Optional)</label>
+                            <input type="file" class="form-control" id="review_file_2" name="review_file_2">
+                            <div class="form-text">
+                                Upload an additional review file if needed
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h5>Important Notes:</h5>
+                            <ul class="mb-0">
+                                <li>At least one review file is required</li>
+                                <li>Allowed file types: PDF, DOC, DOCX, TXT</li>
+                                <li>Maximum file size: 16MB per file</li>
+                                <li>Student will be notified when review is uploaded</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Upload Review Files
+                            </button>
+                            <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function validateFile(file, inputId) {
+    if (!file) return true;
+
+    // Check file size (16MB = 16 * 1024 * 1024 bytes)
+    const maxSize = 16 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('File is too large. Maximum size is 16MB.');
+        document.getElementById(inputId).value = '';
+        return false;
+    }
+
+    // Check file type
+    const allowedTypes = ['pdf', 'doc', 'docx', 'txt'];
+    const fileType = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileType)) {
+        alert('File type not allowed. Please select a PDF, DOC, DOCX, or TXT file.');
+        document.getElementById(inputId).value = '';
+        return false;
+    }
+
+    return true;
+}
+
+// Add validation for both file inputs
+document.getElementById('review_file_1').addEventListener('change', function(e) {
+    validateFile(e.target.files[0], 'review_file_1');
+});
+
+document.getElementById('review_file_2').addEventListener('change', function(e) {
+    validateFile(e.target.files[0], 'review_file_2');
+});
+
+// Form submission validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const file1 = document.getElementById('review_file_1').files[0];
+    const file2 = document.getElementById('review_file_2').files[0];
+    
+    if (!file1 && !file2) {
+        e.preventDefault();
+        alert('Please upload at least one review file.');
+    }
+});
+</script>
+{% endblock %}
