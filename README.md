@@ -14,19 +14,22 @@ A secure platform that allows students to upload documents and faculty members t
 ## Tech Stack
 
 - **Backend**: Flask (Python)
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (Neon)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap
 - **Authentication**: Flask-Login
 - **Security**: Flask-Bcrypt
 - **Email**: Flask-Mail
+- **Hosting**: Koyeb
 
-## Prerequisites
+## Local Development
+
+### Prerequisites
 
 - Python 3.8 or higher
 - PostgreSQL
 - pip (Python package manager)
 
-## Local Development Setup
+### Setup
 
 1. **Clone the repository**
 ```bash
@@ -34,14 +37,7 @@ git clone <repository-url>
 cd <repository-name>
 ```
 
-2. **Set up PostgreSQL**
-```sql
-CREATE USER uploadmanager WITH PASSWORD 'uploadmanager0.0.1.1';
-CREATE DATABASE document_system;
-GRANT ALL PRIVILEGES ON DATABASE document_system TO uploadmanager;
-```
-
-3. **Create and activate a virtual environment**
+2. **Create and activate a virtual environment**
 ```bash
 # Linux/macOS
 python -m venv venv
@@ -52,42 +48,86 @@ python -m venv venv
 .\venv\Scripts\activate
 ```
 
-4. **Install dependencies**
+3. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-5. **Configure environment variables**
-Copy the example environment file:
+4. **Configure environment variables**
 ```bash
 cp .env.example .env
 ```
+Edit `.env` with your local configuration.
 
-Edit `.env` with your configuration:
-- Use default SECRET_KEY for development
-- Default database URL: postgresql://uploadmanager:uploadmanager0.0.1.1@localhost:5432/document_system
-- Configure email settings for notifications
-- Adjust file upload settings if needed
-
-6. **Initialize the database**
+5. **Initialize the database**
 ```bash
 flask init-db
 ```
 
-## Running the Application
-
-1. **Start the development server**
+6. **Run the development server**
 ```bash
 python run.py
 ```
 
-2. **Access the application**
-Open your browser and navigate to:
-```
-http://localhost:5000
-```
+## Deployment
+
+### Prerequisites
+
+1. [Koyeb Account](https://app.koyeb.com)
+2. [Neon Account](https://neon.tech)
+3. Git repository (e.g., GitHub)
+
+### Database Setup with Neon
+
+1. Create a new project in Neon
+2. Create a new database
+3. Get your connection string from the dashboard
+4. Note: Neon provides PostgreSQL 15+ with automated backups and scaling
+
+### Deployment to Koyeb
+
+1. **Connect your repository**
+   - Create a new app in Koyeb
+   - Choose GitHub deployment method
+   - Select your repository
+
+2. **Configure environment variables**
+   Set the following in Koyeb's environment variables:
+   ```
+   FLASK_APP=run.py
+   FLASK_ENV=production
+   DATABASE_URL=your-neon-database-url
+   SECRET_KEY=your-secure-key
+   MAIL_SERVER=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USE_TLS=True
+   MAIL_USERNAME=your-email
+   MAIL_PASSWORD=your-app-password
+   ```
+
+3. **Deploy**
+   - Koyeb will automatically detect the Dockerfile
+   - The application will be built and deployed
+   - Database migrations will run automatically
+
+### File Storage
+
+For production deployment, consider these options for file storage:
+1. Use S3 or similar cloud storage
+2. Mount a persistent volume on Koyeb
+3. Use a file hosting service
+
+Current setup uses local file storage which is ephemeral on Koyeb. Implement cloud storage before production use.
+
+### Monitoring and Maintenance
+
+- Monitor application logs in Koyeb dashboard
+- Set up Neon metrics monitoring
+- Regular database backups (automated by Neon)
+- Monitor application performance
 
 ## Project Structure
+
 ```
 .
 ├── app/
@@ -105,30 +145,6 @@ http://localhost:5000
 ├── run.py
 └── README.md
 ```
-
-## Usage
-
-1. **Student Workflow**
-   - Register as a student
-   - Log in to your account
-   - Upload documents
-   - Track document review status
-   - View faculty feedback
-
-2. **Faculty Workflow**
-   - Register as faculty
-   - Log in to your account
-   - View pending documents
-   - Review documents
-   - Upload feedback files
-
-## Security Features
-
-- Password hashing using bcrypt
-- CSRF protection
-- Secure file uploads
-- Role-based access control
-- Session management
 
 ## Contributing
 

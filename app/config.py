@@ -8,12 +8,20 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://uploadmanager:uploadmanager0.0.1.1@localhost:5432/document_system')
+    @staticmethod
+    def get_database_url():
+        url = os.getenv('DATABASE_URL', 'postgresql://uploadmanager:uploadmanager0.0.1.1@localhost:5432/document_system')
+        if url.startswith('postgres://'):  # Handle Neon's connection string format
+            url = url.replace('postgres://', 'postgresql://', 1)
+        return url
+
+    SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # File Upload
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
-    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 16777216))  # 16MB
+    # 16MB max file size
+    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', '16777216'))
     ALLOWED_EXTENSIONS = {
         'pdf',  # Documents
         'doc', 'docx',  # Microsoft Word
