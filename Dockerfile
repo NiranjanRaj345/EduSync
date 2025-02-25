@@ -29,6 +29,16 @@ RUN mkdir -p logs && chmod 777 logs
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
 ENV PORT=8000
+ENV PYTHONUNBUFFERED=1
 
-# Run migrations and start the application
-CMD flask db upgrade && gunicorn --bind 0.0.0.0:$PORT --log-level debug run:app
+# Create a script to initialize and run the application
+RUN echo '#!/bin/bash\n\
+echo "Waiting for database..."\n\
+sleep 5\n\
+python -c "from app import create_app; create_app().app_context().push()"\n\
+echo "Starting application..."\n\
+exec gunicorn --bind 0.0.0.0:$PORT --log-level debug run:app\n'\
+> /app/start.sh && chmod +x /app/start.sh
+
+# Run the application
+CMD ["/app/start.sh"]

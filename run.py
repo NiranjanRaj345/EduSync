@@ -22,7 +22,13 @@ def init_db():
 
 # Perform database migrations on startup
 with app.app_context():
-    upgrade_database()
+    try:
+        db.create_all()
+        upgrade_database()
+        app.logger.info('Database initialized and migrations applied successfully')
+    except Exception as e:
+        app.logger.error(f'Error initializing database: {str(e)}')
+        raise
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
