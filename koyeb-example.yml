@@ -1,0 +1,35 @@
+app: edusync-docs
+regions: ["gcp-us-east1"]
+services:
+  - name: web
+    instance_types:
+      - name: nano
+    git:
+      repository: your-github-repo-url  # Replace with your GitHub repository URL
+      branch: main
+    ports:
+      - port: 8000
+        http: "/"
+    env:
+      - name: FLASK_APP
+        value: run.py
+      - name: FLASK_ENV
+        value: production
+      - name: DATABASE_URL
+        value: your-neon-database-url  # Replace with your Neon database URL
+      - name: SECRET_KEY
+        value: your-secret-key  # Replace with your secret key
+      - name: MAX_CONTENT_LENGTH
+        value: "16777216"
+      - name: MAIL_SERVER
+        value: smtp.gmail.com
+      - name: MAIL_PORT
+        value: "587"
+      - name: MAIL_USE_TLS
+        value: "True"
+      - name: MAIL_USERNAME
+        value: your-email@gmail.com  # Replace with your email
+      - name: MAIL_PASSWORD
+        value: your-email-password  # Replace with your email password or app-specific password
+    build:
+      dockerfile: Dockerfile

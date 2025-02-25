@@ -86,29 +86,46 @@ python run.py
 
 ### Deployment to Koyeb
 
-1. **Connect your repository**
-   - Create a new app in Koyeb
-   - Choose GitHub deployment method
-   - Select your repository
+1. **Push to GitHub**
+   - Ensure your code is pushed to the GitHub repository
+   - The repository should be: `NiranjanRaj345/EduSync`
+   - Make sure you're on the `main` branch
 
-2. **Configure environment variables**
-   Set the following in Koyeb's environment variables:
-   ```
-   FLASK_APP=run.py
-   FLASK_ENV=production
-   DATABASE_URL=your-neon-database-url
-   SECRET_KEY=your-secure-key
-   MAIL_SERVER=smtp.gmail.com
-   MAIL_PORT=587
-   MAIL_USE_TLS=True
-   MAIL_USERNAME=your-email
-   MAIL_PASSWORD=your-app-password
-   ```
+2. **Deploy via Koyeb Dashboard**
+   - Go to [Koyeb Dashboard](https://app.koyeb.com)
+   - Click "Create App"
+   - Select "GitHub" as the source
+   - Choose `NiranjanRaj345/EduSync` repository
+   - Select `main` branch
+   - Choose "Buildpack" as the builder
 
-3. **Deploy**
-   - Koyeb will automatically detect the Dockerfile
-   - The application will be built and deployed
+3. **Configure Deployment**
+   - Service name: `edusync`
+   - Instance type: Free (0.1 vCPU, 512MB RAM)
+   - Region: Frankfurt
+   - Port: 8000
+   - Environment Variables:
+     ```
+     FLASK_APP=run.py
+     FLASK_ENV=production
+     DATABASE_URL=your-neon-database-url
+     SECRET_KEY=your-secure-key
+     MAIL_SERVER=smtp.gmail.com
+     MAIL_PORT=587
+     MAIL_USE_TLS=True
+     MAIL_USERNAME=your-email
+     MAIL_PASSWORD=your-app-password
+     ```
+
+4. **Monitor Deployment**
+   - Watch the build logs in Koyeb dashboard
+   - Once deployed, your app will be available at:
+     `https://edusync-yourname.koyeb.app`
+
+5. **Post-Deployment**
    - Database migrations will run automatically
+   - Monitor logs for any issues
+   - Check application health in dashboard
 
 ### File Storage
 

@@ -35,6 +35,11 @@ instance/
 
 # Environment variables
 .env
+.env.*
+!.env.example
+
+# Koyeb
+koyeb.yml
 
 # IDE
 .idea/
