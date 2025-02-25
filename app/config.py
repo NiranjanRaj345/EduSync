@@ -8,17 +8,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     
     # Database
-    @staticmethod
-    def get_database_url():
-        url = os.getenv('DATABASE_URL')
-        if url is None:
-            raise RuntimeError('DATABASE_URL environment variable is not set')
-        # Railway provides postgres:// URLs, SQLAlchemy requires postgresql://
-        if url.startswith('postgres://'):
-            url = url.replace('postgres://', 'postgresql://', 1)
-        return url
-
-    SQLALCHEMY_DATABASE_URI = get_database_url()
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://uploadmanager:uploadmanager0.0.1.1@localhost:5432/document_system')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # File Upload
