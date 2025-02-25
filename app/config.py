@@ -80,6 +80,10 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    SERVER_NAME = os.getenv('SERVER_NAME', 'edusync.koyeb.app')
+    SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
+    SESSION_COOKIE_DOMAIN = '.koyeb.app'
     
     @classmethod
     def init_app(cls, app):
@@ -101,6 +105,15 @@ class ProductionConfig(Config):
         )
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
+        
+        # Production security headers
+        @app.after_request
+        def add_security_headers(response):
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            return response
 
 config = {
     'development': DevelopmentConfig,
