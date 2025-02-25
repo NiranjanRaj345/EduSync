@@ -1,5 +1,5 @@
 import os
-from flask import render_template, current_app, send_from_directory
+from flask import render_template, current_app, send_from_directory, redirect, url_for
 from flask_login import current_user
 from app.main import bp
 from werkzeug.utils import secure_filename
@@ -13,10 +13,10 @@ def allowed_file(filename):
 def index():
     if current_user.is_authenticated:
         if current_user.role == 'student':
-            return render_template('student/dashboard.html')
+            return redirect(url_for('student.dashboard'))
         else:
-            return render_template('faculty/dashboard.html')
-    return render_template('main/index.html')
+            return redirect(url_for('faculty.dashboard'))
+    return redirect(url_for('auth.login'))
 
 @bp.route('/uploads/<path:filename>')
 def uploaded_file(filename):
