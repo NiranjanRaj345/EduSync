@@ -25,7 +25,9 @@ limiter = Limiter(
     strategy="fixed-window"
 )
 
-def create_app(config_name='default'):
+def create_app(config_name=None):
+    if config_name is None:
+        config_name = 'production' if os.getenv('FLASK_ENV') == 'production' else 'default'
     app = Flask(__name__)
     
     # Load config

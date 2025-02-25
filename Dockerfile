@@ -30,5 +30,5 @@ ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
 ENV PORT=8000
 
-# Run gunicorn
-CMD gunicorn --bind 0.0.0.0:$PORT run:app
+# Run migrations and start the application
+CMD flask db upgrade && gunicorn --bind 0.0.0.0:$PORT --log-level debug run:app

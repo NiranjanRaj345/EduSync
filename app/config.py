@@ -8,7 +8,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL').replace('postgres://', 'postgresql://') if os.getenv('DATABASE_URL') else None
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # File Upload
