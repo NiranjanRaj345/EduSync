@@ -142,6 +142,88 @@ http://localhost:5000
 3. Make your changes
 4. Submit a pull request
 
+## Deployment on Railway
+
+### Prerequisites
+
+1. A GitHub account
+2. Install Railway CLI (optional):
+   ```bash
+   npm i -g @railway/cli
+   ```
+3. Create a Railway account at https://railway.app/ (Sign in with GitHub)
+
+### Deployment Steps
+
+1. **Fork and Push to GitHub**
+   - Fork this repository
+   - Push your changes to your fork
+   - Ensure your repository is public
+
+2. **Create Railway Project**
+   - Go to [Railway Dashboard](https://railway.app/dashboard)
+   - Click "New Project"
+   - Select "Deploy from GitHub repo"
+   - Choose your repository
+   - Railway will auto-detect the Dockerfile
+
+3. **Add PostgreSQL Database**
+   - In your project dashboard, click "New Service"
+   - Select "Database"
+   - Choose "PostgreSQL"
+   - Railway will provide the connection details automatically
+
+4. **Configure Environment Variables**
+   - Go to project settings
+   - Add the following variables:
+     ```
+     FLASK_APP=run.py
+     FLASK_ENV=production
+     SECRET_KEY=<your-secure-key>
+     MAIL_SERVER=smtp.gmail.com
+     MAIL_PORT=587
+     MAIL_USE_TLS=True
+     MAIL_USERNAME=<your-email>
+     MAIL_PASSWORD=<your-app-password>
+     ```
+   - Database URL will be automatically added by Railway
+
+5. **Monitor Deployment**
+   - Railway will automatically deploy your application
+   - Monitor the deployment logs in the dashboard
+   - Once complete, click on the generated domain to access your app
+
+### File Storage on Railway
+
+Since Railway's filesystem is ephemeral, for production use:
+1. Use AWS S3 or similar for file storage
+2. Or use Railway's Volume Service (Beta)
+3. For development/testing, files will be stored temporarily
+
+### Useful Railway Commands
+```bash
+# Login to Railway
+railway login
+
+# Link to your project
+railway link
+
+# Deploy manually (if needed)
+railway up
+
+# View logs
+railway logs
+
+# List running services
+railway status
+```
+
+### Monitoring and Maintenance
+- Monitor application logs in Railway dashboard
+- Set up alerts for errors
+- Keep track of free tier usage (500 hours/month)
+- Backup your database regularly
+
 ## License
 
 This project is licensed under the MIT License.
