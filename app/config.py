@@ -20,13 +20,12 @@ class Config:
     
     # File Upload
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
-    # 16MB max file size
-    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', '16777216'))
+    # 20MB max file size
+    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', '20971520'))
     ALLOWED_EXTENSIONS = {
         'pdf',  # Documents
         'doc', 'docx',  # Microsoft Word
         'txt',  # Text files
-        'png', 'jpg', 'jpeg',  # Images
         'zip',  # Archives
     }
     
