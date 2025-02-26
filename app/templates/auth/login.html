@@ -10,7 +10,7 @@
                 <p class="text-muted mb-0">Please sign in to continue</p>
             </div>
             <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next'), _external=True) }}">
                     {{ form.hidden_tag() }}
                     
                     <div class="mb-4">

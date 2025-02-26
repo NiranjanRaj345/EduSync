@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify, request, flash, redirect, url_for
+from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
@@ -15,7 +16,8 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions with connection pooling
+# Initialize Flask extensions
+csrf = CSRFProtect()
 db = SQLAlchemy(engine_options={
     'pool_size': 10,
     'pool_recycle': 3600,
@@ -36,6 +38,43 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = 'production' if os.getenv('FLASK_ENV') == 'production' else 'default'
     app = Flask(__name__)
+
+    # Session and Cookie Security Configuration
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        PERMANENT_SESSION_LIFETIME=3600,  # 1 hour
+        REMEMBER_COOKIE_SECURE=True,
+        REMEMBER_COOKIE_HTTPONLY=True,
+        REMEMBER_COOKIE_DURATION=2592000  # 30 days
+    )
+
+    # Initialize CSRF protection
+    csrf.init_app(app)
+
+    # CSRF Error Handler
+    @app.errorhandler(CSRFProtect.error_handler)
+    def handle_csrf_error(e):
+        app.logger.warning(f"CSRF Error: {str(e)}")
+        return redirect(url_for('auth.login')), 302
+
+    # Generic Error Handlers
+    @app.errorhandler(400)
+    def bad_request_error(e):
+        app.logger.warning(f"Bad Request: {str(e)}")
+        if request.is_xhr:
+            return jsonify({"error": str(e)}), 400
+        flash("An error occurred. Please try again.", "danger")
+        return redirect(url_for('auth.login'))
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        app.logger.error(f"Server Error: {str(e)}")
+        if request.is_xhr:
+            return jsonify({"error": "Internal server error"}), 500
+        flash("An unexpected error occurred. Please try again later.", "danger")
+        return redirect(url_for('main.index'))
     
     # Load config
     app.config.from_object(config[config_name])
@@ -77,4 +116,8 @@ def create_app(config_name=None):
     app.register_blueprint(student_bp)
     app.register_blueprint(faculty_bp)
     
+    # Initialize request logger
+    from app.utils import init_request_logger
+    init_request_logger(app)
+
     return app
