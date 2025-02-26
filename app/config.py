@@ -10,7 +10,7 @@ class Config:
     
     # Session Configuration
     SESSION_TYPE = 'redis'
-    SESSION_REDIS = Redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+    SESSION_REDIS = Redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'), decode_responses=True)
     SESSION_PERMANENT = True
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     SESSION_COOKIE_SECURE = True
@@ -112,12 +112,9 @@ class ProductionConfig(Config):
     # Session settings for production
     SESSION_REDIS = Redis.from_url(
         os.getenv('REDIS_URL', 'redis://localhost:6379'),
-        ssl=True,
-        ssl_cert_reqs=None,
         decode_responses=True
     )
     SESSION_COOKIE_DOMAIN = '.koyeb.app'
-    SESSION_REDIS_SSL = True
     
     # Enhanced database settings for production
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -130,7 +127,6 @@ class ProductionConfig(Config):
             'application_name': 'edusync_production',  # Identify app in database logs
         }
     }
-    
     
     @classmethod
     def init_app(cls, app):
@@ -162,7 +158,6 @@ class ProductionConfig(Config):
         )
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
-        
 
 config = {
     'development': DevelopmentConfig,
