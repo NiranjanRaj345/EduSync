@@ -1,8 +1,7 @@
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
-from sqlalchemy.pool import QueuePool
 from flask_login import LoginManager
+from flask_session import Session
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -15,7 +14,8 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions with connection pooling
+# Initialize Flask extensions
+sess = Session()
 db = SQLAlchemy(engine_options={
     'pool_size': 10,
     'pool_recycle': 3600,
@@ -37,30 +37,24 @@ def create_app(config_name=None):
         config_name = 'production' if os.getenv('FLASK_ENV') == 'production' else 'default'
     app = Flask(__name__)
     
+    # Ensure instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    
     # Load config
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # Initialize extensions with app and configure database retry
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_size': 10,
-        'pool_recycle': 3600,
-        'pool_pre_ping': True,
-        'pool_timeout': 30,
-        'connect_args': {
-            'connect_timeout': 10,
-            'keepalives': 1,
-            'keepalives_idle': 30,
-            'keepalives_interval': 10,
-            'keepalives_count': 5
-        }
-    }
-    db.init_app(app)
-    migrate.init_app(app, db)
-    login_manager.init_app(app)
-    bcrypt.init_app(app)
-    mail.init_app(app)
-    limiter.init_app(app)
+    # Initialize extensions in correct order
+    sess.init_app(app)  # Session must be initialized first
+    db.init_app(app)    # Then database
+    migrate.init_app(app, db)  # Database migrations
+    login_manager.init_app(app)  # Authentication
+    bcrypt.init_app(app)  # Password hashing
+    mail.init_app(app)  # Email functionality
+    limiter.init_app(app)  # Rate limiting
     
     # Configure login manager
     login_manager.login_view = 'auth.login'

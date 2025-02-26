@@ -2,10 +2,21 @@ import os
 import logging
 from datetime import timedelta
 from logging.handlers import RotatingFileHandler
+from redis import Redis
 
 class Config:
     # Flask
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
+    
+    # Session Configuration
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = Redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+    SESSION_PERMANENT = True
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_REFRESH_EACH_REQUEST = True
     
     # Database
     @staticmethod
@@ -98,6 +109,16 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Session settings for production
+    SESSION_REDIS = Redis.from_url(
+        os.getenv('REDIS_URL', 'redis://localhost:6379'),
+        ssl=True,
+        ssl_cert_reqs=None,
+        decode_responses=True
+    )
+    SESSION_COOKIE_DOMAIN = '.koyeb.app'
+    SESSION_REDIS_SSL = True
+    
     # Enhanced database settings for production
     SQLALCHEMY_ENGINE_OPTIONS = {
         **Config.SQLALCHEMY_ENGINE_OPTIONS,
