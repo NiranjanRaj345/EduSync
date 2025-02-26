@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
@@ -13,8 +15,13 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions
-db = SQLAlchemy()
+# Initialize Flask extensions with connection pooling
+db = SQLAlchemy(engine_options={
+    'pool_size': 10,
+    'pool_recycle': 3600,
+    'pool_pre_ping': True,
+    'pool_timeout': 30,
+})
 migrate = Migrate()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
@@ -34,7 +41,20 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # Initialize extensions with app
+    # Initialize extensions with app and configure database retry
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'pool_recycle': 3600,
+        'pool_pre_ping': True,
+        'pool_timeout': 30,
+        'connect_args': {
+            'connect_timeout': 10,
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5
+        }
+    }
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)

@@ -10,6 +10,7 @@ class Config:
     # Database
     @staticmethod
     def get_database_url():
+        """Get database URL with proper error handling and retry mechanism"""
         url = os.getenv('DATABASE_URL', 'postgresql://uploadmanager:uploadmanager0.0.1.1@localhost:5432/document_system')
         if url.startswith('postgres://'):  # Handle Neon's connection string format
             url = url.replace('postgres://', 'postgresql://', 1)
@@ -17,6 +18,23 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Database Connection Settings
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': int(os.getenv('DB_POOL_SIZE', '10')),
+        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '3600')),  # Recycle connections after 1 hour
+        'pool_pre_ping': True,  # Enable connection health checks
+        'pool_timeout': int(os.getenv('DB_POOL_TIMEOUT', '30')),
+        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '5')),  # Allow up to 5 connections over pool_size
+        'connect_args': {
+            'connect_timeout': 10,
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
+            'sslmode': 'require'  # Enforce SSL for Neon database
+        }
+    }
     
     # File Upload
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
@@ -80,11 +98,32 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Enhanced database settings for production
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        **Config.SQLALCHEMY_ENGINE_OPTIONS,
+        'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),  # Larger pool for production
+        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800')),  # More frequent recycling
+        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '10')),  # More overflow connections
+        'connect_args': {
+            **Config.SQLALCHEMY_ENGINE_OPTIONS['connect_args'],
+            'application_name': 'edusync_production',  # Identify app in database logs
+        }
+    }
     
     
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
+        
+        # Configure database logging
+        db_logger = logging.getLogger('sqlalchemy.engine')
+        db_logger.setLevel(logging.WARNING)
+        
+        # Log database disconnections
+        def handle_db_error(exception):
+            app.logger.error(f"Database Error: {str(exception)}")
+            
+        app.logger.info("Production database configuration initialized")
         
         # Email errors to admins
         from logging.handlers import SMTPHandler

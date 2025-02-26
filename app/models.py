@@ -1,6 +1,11 @@
 from datetime import datetime
 from flask_login import UserMixin
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from flask import current_app
+import logging
 from . import db, login_manager
+
+logger = logging.getLogger(__name__)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,4 +48,16 @@ class Document(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    retries = 3
+    while retries > 0:
+        try:
+            return User.query.get(int(user_id))
+        except OperationalError as e:
+            retries -= 1
+            logger.warning(f"Database connection error, retries left: {retries}. Error: {str(e)}")
+            if retries == 0:
+                logger.error(f"Failed to load user after 3 retries. Error: {str(e)}")
+                return None
+        except SQLAlchemyError as e:
+            logger.error(f"Database error while loading user: {str(e)}")
+            return None
