@@ -10,7 +10,7 @@
                 <p class="text-muted mb-0">Please fill in your information</p>
             </div>
             <div class="card-body">
-                <form method="POST" action="">
+                <form method="POST" action="{{ url_for('auth.signup') }}">
                     {{ form.hidden_tag() }}
                     
                     <div class="mb-4">

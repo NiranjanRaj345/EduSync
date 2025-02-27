@@ -6,6 +6,9 @@ from logging.handlers import RotatingFileHandler
 class Config:
     # Flask
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
     
     # Database
     @staticmethod
@@ -98,6 +101,12 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    # Session and cookie settings for production
+    SESSION_COOKIE_NAME = '__Host-session'  # More secure session cookie
+    REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
+    
     # Enhanced database settings for production
     SQLALCHEMY_ENGINE_OPTIONS = {
         **Config.SQLALCHEMY_ENGINE_OPTIONS,

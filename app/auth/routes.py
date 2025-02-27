@@ -22,9 +22,9 @@ def login():
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
             if user.role == 'student':
-                next_page = url_for('student.dashboard', _external=True)
+                next_page = url_for('student.dashboard')
             else:
-                next_page = url_for('faculty.dashboard', _external=True)
+                next_page = url_for('faculty.dashboard')
         return redirect(next_page)
         
     return render_template('auth/login.html', title='Sign In', form=form)
@@ -32,7 +32,10 @@ def login():
 @bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        if current_user.role == 'student':
+            return redirect(url_for('student.dashboard'))
+        else:
+            return redirect(url_for('faculty.dashboard'))
         
     form = RegistrationForm()
     if form.validate_on_submit():
