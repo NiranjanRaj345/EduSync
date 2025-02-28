@@ -1,0 +1,94 @@
+app: edusync
+regions: ["fra"]
+services:
+  - name: web
+    instance_types:
+      - name: nano
+    git:
+      repository: NiranjanRaj345/EduSync
+      branch: main
+    ports:
+      - port: 8000
+        http: "/"
+    env:
+      - name: SERVER_NAME
+        value: edusync.koyeb.app
+      - name: FLASK_APP
+        value: run.py
+      - name: FLASK_ENV
+        value: production
+      - name: DATABASE_URL
+        secret: NEON_DATABASE_URL
+      - name: REDIS_URL
+        value: "rediss://default:ztOpR4ExTnpCAaVE2q5RE3j2fFeJ2O6S@redis-14090.c293.eu-central-1-1.ec2.redns.redis-cloud.com:14090"
+      - name: DB_POOL_SIZE
+        value: "5"  # Reduced pool size for Neon
+      - name: DB_POOL_RECYCLE
+        value: "1800"  # 30 minutes connection recycling
+      - name: DB_POOL_TIMEOUT
+        value: "30"
+      - name: DB_MAX_OVERFLOW
+        value: "2"  # Limited overflow for Neon stability
+      - name: SECRET_KEY
+        secret: FLASK_SECRET_KEY
+      - name: MAX_CONTENT_LENGTH
+        value: "20971520"  # 20MB file size limit
+      - name: GOOGLE_DRIVE_KEY_PATH
+        secret: GOOGLE_DRIVE_KEY
+      # Google Drive Configuration
+      - name: GOOGLE_DRIVE_PARENT_FOLDER
+        value: "1X6gdJ3pM2DsnkWGGu9R5mBKwjgdV0mpg"  # Main folder ID
+      - name: GOOGLE_SERVICE_ACCOUNT
+        value: "edusync-service@edusync-service.iam.gserviceaccount.com"
+      - name: GOOGLE_CREDENTIALS_JSON
+        secret: GOOGLE_CREDENTIALS  # Will be set in Koyeb secrets
+      - name: MAIL_SERVER
+        value: smtp.gmail.com
+      - name: MAIL_PORT
+        value: "587"
+      - name: MAIL_USE_TLS
+        value: "True"
+      # Session Configuration
+      - name: SESSION_TYPE
+        value: "redis"
+      - name: PERMANENT_SESSION_LIFETIME
+        value: "86400"  # 24 hours in seconds
+      - name: SESSION_USE_SIGNER
+        value: "True"
+      - name: SESSION_KEY_PREFIX
+        value: "edusync:"
+      - name: SESSION_COOKIE_NAME
+        value: "__Host-session"
+      - name: MAIL_USERNAME
+        secret: MAIL_USERNAME
+      - name: MAIL_PASSWORD
+        secret: MAIL_PASSWORD
+      - name: GOOGLE_CLIENT_ID
+        secret: GOOGLE_CLIENT_ID
+      - name: GOOGLE_CLIENT_SECRET
+        secret: GOOGLE_CLIENT_SECRET
+      - name: GOOGLE_PROJECT_ID
+        secret: GOOGLE_PROJECT_ID
+      - name: GOOGLE_AUTH_URI
+        value: "https://accounts.google.com/o/oauth2/auth"
+      - name: GOOGLE_TOKEN_URI
+        value: "https://oauth2.googleapis.com/token"
+      - name: GOOGLE_AUTH_PROVIDER_CERT_URL
+        value: "https://www.googleapis.com/oauth2/v1/certs"
+      - name: GOOGLE_REDIRECT_URI
+        value: "https://edusync.koyeb.app/auth/google/callback"
+      # Google Drive Configuration
+      - name: GOOGLE_DRIVE_CREDENTIALS
+        secret: GDRIVE_CREDENTIALS  # Base64 encoded credentials.json content
+      - name: GOOGLE_DRIVE_FOLDER_ID
+        secret: GDRIVE_FOLDER_ID
+      - name: USE_GOOGLE_DRIVE
+        value: "True"
+    build:
+      builder: buildpack
+    healthcheck:
+      port: 8000
+      path: /
+      initial_delay: 30s
+      timeout: 10s
+      interval: 30s

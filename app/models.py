@@ -19,6 +19,8 @@ class User(UserMixin, db.Model):
     # Relationships
     uploaded_documents = db.relationship('Document', backref='uploader', lazy=True,
                                       foreign_keys='Document.uploader_id')
+    assigned_documents = db.relationship('Document', backref='assigned_faculty', lazy=True,
+                                      foreign_keys='Document.assigned_faculty_id')
     reviewed_documents = db.relationship('Document', backref='reviewer', lazy=True,
                                        foreign_keys='Document.reviewer_id')
 
@@ -29,18 +31,27 @@ class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     original_filename = db.Column(db.String(255), nullable=False)
-    file_path = db.Column(db.String(512), nullable=False)
+    file_path = db.Column(db.String(512), nullable=True)  # Local file path (optional)
     file_type = db.Column(db.String(50), nullable=False)
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='pending_review')  # pending_review, reviewed
     
+    # Google Drive Fields
+    gdrive_file_id = db.Column(db.String(100), nullable=True)
+    gdrive_view_link = db.Column(db.String(512), nullable=True)
+    
     # Foreign Keys
     uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    assigned_faculty_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     # Review Documents
     review_file1_path = db.Column(db.String(512), nullable=True)
     review_file2_path = db.Column(db.String(512), nullable=True)
+    gdrive_review1_id = db.Column(db.String(100), nullable=True)
+    gdrive_review2_id = db.Column(db.String(100), nullable=True)
+    gdrive_review1_link = db.Column(db.String(512), nullable=True)
+    gdrive_review2_link = db.Column(db.String(512), nullable=True)
     review_date = db.Column(db.DateTime, nullable=True)
     
     def __repr__(self):

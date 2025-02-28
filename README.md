@@ -1,175 +1,161 @@
-# University Document Upload & Review System
+# Document Management System with Google Drive Integration
 
-A secure platform that allows students to upload documents and faculty members to review and provide feedback.
+A document management system for educational institutions that supports both local storage and Google Drive for file management.
 
 ## Features
 
-- 🔐 Role-based authentication (Students & Faculty)
-- 📄 Document upload system for students
-- 👨‍🏫 Review system for faculty members
-- 📧 Email notifications for review updates
-- 🔍 Document tracking system
-- 🎯 Clean and responsive UI
+- Upload and manage student documents
+- Faculty review system with feedback files
+- Google Drive integration for cloud storage
+- Local storage fallback option
+- Email notifications for document reviews
+- Secure file access control
 
-## Tech Stack
+## Development Setup
 
-- **Backend**: Flask (Python)
-- **Database**: PostgreSQL (Neon)
-- **Frontend**: HTML, CSS, JavaScript, Bootstrap
-- **Authentication**: Flask-Login
-- **Security**: Flask-Bcrypt
-- **Email**: Flask-Mail
-- **Hosting**: Koyeb
-
-## Local Development
-
-### Prerequisites
-
-- Python 3.8 or higher
-- PostgreSQL
-- pip (Python package manager)
-
-### Setup
-
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd <repository-name>
-```
-
-2. **Create and activate a virtual environment**
-```bash
-# Linux/macOS
-python -m venv venv
-source venv/bin/activate
-
-# Windows
-python -m venv venv
-.\venv\Scripts\activate
-```
-
-3. **Install dependencies**
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Configure environment variables**
+2. Configure environment variables:
 ```bash
 cp .env.example .env
 ```
-Edit `.env` with your local configuration.
+Edit `.env` with your configuration settings.
 
-5. **Initialize the database**
+3. Set up Google Drive integration:
+Follow the instructions in `GOOGLE_DRIVE_SETUP.md`
+
+4. Initialize the database:
 ```bash
-flask init-db
+flask db upgrade
 ```
 
-6. **Run the development server**
+5. Run the development server:
 ```bash
-python run.py
+flask run
 ```
 
-## Deployment
+## Production Deployment
 
-### Prerequisites
+1. Prepare server:
+   - Ubuntu 22.04 or later
+   - Python 3.12
+   - PostgreSQL 14 or later
+   - Redis 6 or later
+   - Nginx
 
-1. [Koyeb Account](https://app.koyeb.com)
-2. [Neon Account](https://neon.tech)
-3. Git repository (e.g., GitHub)
+2. Clone repository:
+```bash
+git clone https://github.com/yourusername/edusync.git /var/www/edusync
+cd /var/www/edusync
+```
 
-### Database Setup with Neon
+3. Configure deployment:
+   - Update domain in `nginx.conf`
+   - Update `.env` with production settings
+   - Configure `service-account.json` for Google Drive
+   - Set production database credentials
 
-1. Create a new project in Neon
-2. Create a new database
-3. Get your connection string from the dashboard
-4. Note: Neon provides PostgreSQL 15+ with automated backups and scaling
+4. Run deployment script:
+```bash
+chmod +x deploy.sh
+sudo ./deploy.sh
+```
 
-### Deployment to Koyeb
+5. Post-deployment tasks:
+   - Follow the checklist in `PRODUCTION_CHECKLIST.md`
+   - Set up monitoring and alerts
+   - Configure backup schedule
+   - Test all functionality
 
-1. **Push to GitHub**
-   - Ensure your code is pushed to the GitHub repository
-   - The repository should be: `NiranjanRaj345/EduSync`
-   - Make sure you're on the `main` branch
+For detailed deployment instructions, see:
+- `PRODUCTION_CHECKLIST.md`: Pre-deployment checklist
+- `GOOGLE_DRIVE_SETUP.md`: Google Drive configuration
+- `nginx.conf`: Web server configuration
+- `gunicorn.conf.py`: Application server settings
+- `edusync.service`: Systemd service configuration
 
-2. **Deploy via Koyeb Dashboard**
-   - Go to [Koyeb Dashboard](https://app.koyeb.com)
-   - Click "Create App"
-   - Select "GitHub" as the source
-   - Choose `NiranjanRaj345/EduSync` repository
-   - Select `main` branch
-   - Choose "Buildpack" as the builder
+## Usage
 
-3. **Configure Deployment**
-   - Service name: `edusync`
-   - Instance type: Free (0.1 vCPU, 512MB RAM)
-   - Region: Frankfurt
-   - Port: 8000
-   - Environment Variables:
-     ```
-     FLASK_APP=run.py
-     FLASK_ENV=production
-     DATABASE_URL=your-neon-database-url
-     SECRET_KEY=your-secure-key
-     MAIL_SERVER=smtp.gmail.com
-     MAIL_PORT=587
-     MAIL_USE_TLS=True
-     MAIL_USERNAME=your-email
-     MAIL_PASSWORD=your-app-password
-     ```
+### File Storage Options
 
-4. **Monitor Deployment**
-   - Watch the build logs in Koyeb dashboard
-   - Once deployed, your app will be available at:
-     `https://edusync-yourname.koyeb.app`
+The system supports two storage modes:
 
-5. **Post-Deployment**
-   - Database migrations will run automatically
-   - Monitor logs for any issues
-   - Check application health in dashboard
+1. Local Storage (default):
+- Files are stored in the `uploads/` directory
+- Set `USE_GOOGLE_DRIVE=False` in `.env`
 
-### File Storage
+2. Google Drive Storage:
+- Files are stored in Google Drive
+- Set `USE_GOOGLE_DRIVE=True` in `.env`
+- Requires proper Google Drive credentials setup
 
-For production deployment, consider these options for file storage:
-1. Use S3 or similar cloud storage
-2. Mount a persistent volume on Koyeb
-3. Use a file hosting service
+### Document Upload Process
 
-Current setup uses local file storage which is ephemeral on Koyeb. Implement cloud storage before production use.
+1. Students:
+- Log in as student
+- Navigate to dashboard
+- Click "Upload New Document"
+- Select file and assigned faculty
+- Submit for review
 
-### Monitoring and Maintenance
+2. Faculty:
+- Log in as faculty
+- View assigned documents
+- Download and review student documents
+- Upload feedback files
+- Students get email notifications
 
-- Monitor application logs in Koyeb dashboard
-- Set up Neon metrics monitoring
-- Regular database backups (automated by Neon)
-- Monitor application performance
+### Security Features
 
-## Project Structure
+- File access control based on user roles
+- Secure file storage paths
+- Google Drive integration with OAuth 2.0
+- Rate limiting for uploads
+- Input validation and sanitization
+
+### Directory Structure
 
 ```
-.
 ├── app/
-│   ├── __init__.py
-│   ├── models.py
-│   ├── auth/
-│   ├── main/
-│   ├── student/
-│   ├── faculty/
-│   └── templates/
-├── uploads/
-├── .env
-├── .env.example
-├── requirements.txt
-├── run.py
-└── README.md
+│   ├── uploads/          # Local storage directory
+│   │   ├── student_*/    # Student documents
+│   │   ├── reviews/      # Faculty review files
+│   │   └── temp/        # Temporary storage for uploads
+│   └── utils/
+│       └── google_drive.py  # Google Drive integration
 ```
 
-## Contributing
+## Configuration Options
 
-1. Fork the repository
-2. Create a new branch
-3. Make your changes
-4. Submit a pull request
+### Environment Variables
+
+- `SECRET_KEY`: Flask secret key
+- `DATABASE_URL`: Database connection string
+- `UPLOAD_FOLDER`: Local upload directory path
+- `USE_GOOGLE_DRIVE`: Enable/disable Google Drive storage
+- `GOOGLE_DRIVE_CREDENTIALS`: Path to credentials file
+- `GOOGLE_DRIVE_TOKEN`: Path to token file
+- `MAIL_*`: Email configuration settings
+
+## Troubleshooting
+
+1. Google Drive Authorization:
+- Ensure `service-account.json` is present
+- Verify service account has necessary permissions
+- Check target folder sharing settings
+
+2. File Upload Issues:
+- Verify upload directory permissions
+- Check file size limits
+- Ensure proper mime types
+
+3. Database Migrations:
+- Run `flask db upgrade` for schema updates
+- Check database connection settings
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -23,21 +23,54 @@ def allowed_file(filename):
     return True
 
 def save_file(file, directory):
-    """Save file with secure filename in specified directory"""
+    """Save file and optionally upload to Google Drive"""
     filename = secure_filename(file.filename)
     # Add timestamp to filename to prevent overwriting
     name, ext = os.path.splitext(filename)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f"{name}_{timestamp}{ext}"
     
-    path = os.path.join(current_app.config['UPLOAD_FOLDER'], directory)
-    os.makedirs(path, exist_ok=True)
+    file_path = None
+    gdrive_file_id = None
+    gdrive_view_link = None
     
     try:
-        file_path = os.path.join(current_app.root_path, path, filename)
-        file.save(file_path)
-        logger.info(f"File saved successfully: {file_path}")
-        return filename
+        if not current_app.config['USE_GOOGLE_DRIVE']:
+            # Save locally
+            upload_path = current_app.config['UPLOAD_FOLDER']
+            if not os.path.isabs(upload_path):
+                upload_path = os.path.abspath(upload_path)
+            path = os.path.join(upload_path, directory)
+            os.makedirs(path, exist_ok=True)
+            file_path = os.path.join(path, filename)
+            file.save(file_path)
+            logger.info(f"File saved locally at: {file_path}")
+        else:
+            # Save temporarily and upload to Google Drive
+            temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'temp')
+            os.makedirs(temp_path, exist_ok=True)
+            temp_file_path = os.path.join(temp_path, filename)
+            file.save(temp_file_path)
+            
+            try:
+                from app.utils.google_drive import gdrive
+                gdrive_file_id, gdrive_view_link = gdrive.upload_file(
+                    temp_file_path,
+                    filename,
+                    mime_type=file.mimetype
+                )
+                logger.info(f"File uploaded to Google Drive with ID: {gdrive_file_id}")
+            finally:
+                # Clean up temporary file
+                if os.path.exists(temp_file_path):
+                    os.remove(temp_file_path)
+        
+        return {
+            'filename': filename,
+            'file_path': os.path.join(directory, filename) if file_path else None,
+            'gdrive_file_id': gdrive_file_id,
+            'gdrive_view_link': gdrive_view_link
+        }
     except Exception as e:
         logger.error(f"Error saving file {filename}: {str(e)}")
         raise
@@ -50,13 +83,15 @@ def dashboard():
         flash('Access denied. Faculty only.', 'danger')
         return redirect(url_for('main.index'))
     
-    # Get all documents pending review
-    documents = Document.query.filter_by(status='pending_review').order_by(
-        Document.upload_date.desc()
-    ).all()
+    # Get documents assigned to this faculty member that are pending review
+    documents = Document.query.filter_by(
+        assigned_faculty_id=current_user.id,
+        status='pending_review'
+    ).order_by(Document.upload_date.desc()).all()
     
-    # Get all documents reviewed by current faculty
+    # Get documents reviewed by this faculty member
     reviewed = Document.query.filter_by(
+        assigned_faculty_id=current_user.id,
         reviewer_id=current_user.id,
         status='reviewed'
     ).order_by(Document.review_date.desc()).all()
@@ -74,6 +109,13 @@ def view_document(id):
         return redirect(url_for('main.index'))
     
     document = Document.query.get_or_404(id)
+    
+    # Ensure faculty can only view documents assigned to them
+    if document.assigned_faculty_id != current_user.id:
+        logger.warning(f"Faculty {current_user.id} attempted to access unassigned document {id}")
+        flash('Access denied. You can only view documents assigned to you.', 'danger')
+        return redirect(url_for('faculty.dashboard'))
+        
     student = User.query.get(document.uploader_id)
     
     return render_template('faculty/document.html',
@@ -89,6 +131,12 @@ def upload_review(doc_id):
         return redirect(url_for('main.index'))
     
     document = Document.query.get_or_404(doc_id)
+    
+    # Ensure faculty can only review documents assigned to them
+    if document.assigned_faculty_id != current_user.id:
+        logger.warning(f"Faculty {current_user.id} attempted to review unassigned document {doc_id}")
+        flash('Access denied. You can only review documents assigned to you.', 'danger')
+        return redirect(url_for('faculty.dashboard'))
     
     if request.method == 'POST':
         review_files = []
@@ -113,13 +161,17 @@ def upload_review(doc_id):
             # Save review files
             for i, file in review_files:
                 directory = f"reviews/document_{doc_id}"
-                filename = save_file(file, directory)
+                result = save_file(file, directory)
                 
                 # Update document record
                 if i == 1:
-                    document.review_file1_path = os.path.join(directory, filename)
+                    document.review_file1_path = result['file_path']
+                    document.gdrive_review1_id = result['gdrive_file_id']
+                    document.gdrive_review1_link = result['gdrive_view_link']
                 else:
-                    document.review_file2_path = os.path.join(directory, filename)
+                    document.review_file2_path = result['file_path']
+                    document.gdrive_review2_id = result['gdrive_file_id']
+                    document.gdrive_review2_link = result['gdrive_view_link']
             
             # Update document status
             document.status = 'reviewed'
@@ -149,6 +201,7 @@ def reviewed_documents():
     
     # Get all documents reviewed by current faculty
     documents = Document.query.filter_by(
+        assigned_faculty_id=current_user.id,
         reviewer_id=current_user.id,
         status='reviewed'
     ).order_by(Document.review_date.desc()).all()

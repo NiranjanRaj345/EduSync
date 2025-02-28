@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -15,31 +16,13 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
 # Virtual Environment
 venv/
-env/
 ENV/
-
-# Flask
-instance/
-.webassets-cache
-
-# Database
-*.sqlite
-*.db
-
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# Koyeb
-koyeb.yml
 
 # IDE
 .idea/
@@ -47,11 +30,45 @@ koyeb.yml
 *.swp
 *.swo
 
-# Uploads
-app/uploads/*
-!app/uploads/.gitkeep
+# Application specific
+uploads/*
+!uploads/.gitkeep
+logs/*
+!logs/.gitkeep
+*.log
+.env
+credentials.json
+service-account.json
+token.pickle
 
-# Coverage
-htmlcov/
+# Database
+*.db
+*.sqlite3
+
+# Testing
+.pytest_cache/
 .coverage
-.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Temporary files
+app/uploads/temp/*
+!app/uploads/temp/.gitkeep
+app/uploads/test/*
+!app/uploads/test/.gitkeep
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Production
+*.pid
+
+# Development and test files
+TEST_STEPS.md
+PRODUCTION_CHECKLIST.md
+test_*.py
