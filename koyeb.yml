@@ -20,7 +20,7 @@ services:
       - name: DATABASE_URL
         secret: NEON_DATABASE_URL
       - name: REDIS_URL
-        value: "rediss://default:ztOpR4ExTnpCAaVE2q5RE3j2fFeJ2O6S@redis-14090.c293.eu-central-1-1.ec2.redns.redis-cloud.com:14090"
+        value: redis://redis:6379/0
       - name: DB_POOL_SIZE
         value: "5"  # Reduced pool size for Neon
       - name: DB_POOL_RECYCLE
