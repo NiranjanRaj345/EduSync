@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 
 class User(UserMixin, db.Model):
+    """User model for authentication and database storage."""
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -44,6 +45,7 @@ class User(UserMixin, db.Model):
         return f'<User {self.email}>'
 
 class Document(db.Model):
+    """Document model for storing uploaded files and reviews."""
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     original_filename = db.Column(db.String(255), nullable=False)
@@ -73,7 +75,8 @@ class Document(db.Model):
     def __repr__(self):
         return f'<Document {self.original_filename}>'
 
+# Setup Flask-Login user loader
 @login.user_loader
 def load_user(id):
-    """Load user by ID."""
+    """Load user by ID for Flask-Login."""
     return User.query.get(int(id))

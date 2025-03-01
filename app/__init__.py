@@ -44,51 +44,7 @@ def create_app(config_class: Optional[object] = None) -> Flask:
     else:
         app.config.from_object(config_class)
 
-    # Ensure upload directories exist
-    upload_paths = {
-        'base': app.config['UPLOAD_FOLDER'],
-        'temp': 'temp',
-        'reviews': 'reviews',
-        'student': 'student'
-    }
-    
-    try:
-        # Create upload directories
-        for path_type, subdir in upload_paths.items():
-            if path_type == 'base':
-                directory = os.path.join(app.root_path, subdir)
-            else:
-                directory = os.path.join(app.root_path, upload_paths['base'], subdir)
-            os.makedirs(directory, exist_ok=True)
-            if not app.debug:  # Only log in production
-                app.logger.info(f"Created directory: {directory}")
-    except Exception as e:
-        app.logger.error(f"Error creating directories: {str(e)}")
-        raise
-
-    # Initialize Flask extensions with error handling
-    extensions = [
-        (db, 'SQLAlchemy'),
-        (migrate, 'Migrate', [app, db]),
-        (login, 'Login'),
-        (mail, 'Mail'),
-        (limiter, 'Rate Limiter'),
-        (sess, 'Session')
-    ]
-    
-    for ext, name, *args in extensions:
-        try:
-            if args:
-                ext.init_app(*args)
-            else:
-                ext.init_app(app)
-            if not app.debug:
-                app.logger.info(f"Initialized {name} extension")
-        except Exception as e:
-            app.logger.error(f"Error initializing {name}: {str(e)}")
-            raise
-    
-    # Set up logging
+    # Set up logging first
     if not app.debug and not app.testing:
         # Create logs directory if it doesn't exist
         log_dir = os.path.join(app.root_path, '..', 'logs')
@@ -106,20 +62,53 @@ def create_app(config_class: Optional[object] = None) -> Flask:
         ))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-        
-        # Set up logging level
         app.logger.setLevel(logging.INFO)
         app.logger.info('Document System startup')
-        
-        # Log configuration status
-        app.logger.info('Google Drive: %s', 'enabled' if app.config['USE_GOOGLE_DRIVE'] else 'disabled')
-        app.logger.info('Database: PostgreSQL with connection pooling')
-        app.logger.info('Upload path: %s', os.path.abspath(app.config['UPLOAD_FOLDER']))
 
-    # Import models here to avoid circular imports
-    from app import models  # noqa: E402
-        
-    # Register blueprints with better error handling
+    # Initialize extensions
+    with app.app_context():
+        # First initialize SQLAlchemy
+        db.init_app(app)
+        app.logger.info('SQLAlchemy initialized')
+
+        # Then initialize Flask-Migrate
+        migrate.init_app(app, db)
+        app.logger.info('Flask-Migrate initialized')
+
+        # Initialize Flask-Login
+        login.init_app(app)
+        app.logger.info('Flask-Login initialized')
+
+        # Initialize remaining extensions
+        mail.init_app(app)
+        limiter.init_app(app)
+        sess.init_app(app)
+        app.logger.info('All extensions initialized')
+
+        # Import models here to avoid circular imports
+        from app import models
+
+    # Ensure upload directories exist
+    upload_paths = {
+        'base': app.config['UPLOAD_FOLDER'],
+        'temp': 'temp',
+        'reviews': 'reviews',
+        'student': 'student'
+    }
+    
+    try:
+        for path_type, subdir in upload_paths.items():
+            if path_type == 'base':
+                directory = os.path.join(app.root_path, subdir)
+            else:
+                directory = os.path.join(app.root_path, upload_paths['base'], subdir)
+            os.makedirs(directory, exist_ok=True)
+            app.logger.info(f'Created directory: {directory}')
+    except Exception as e:
+        app.logger.error(f'Error creating directories: {str(e)}')
+        raise
+
+    # Register blueprints
     blueprints = {
         'main': ('app.main', 'bp'),
         'auth': ('app.auth', 'bp'),
@@ -132,13 +121,18 @@ def create_app(config_class: Optional[object] = None) -> Flask:
             module = __import__(module_path, fromlist=[attr])
             blueprint = getattr(module, attr)
             app.register_blueprint(blueprint)
-            if not app.debug:
-                app.logger.info(f"Registered blueprint: {name} from {module_path}")
+            app.logger.info(f'Registered blueprint: {name}')
         except ImportError as e:
-            app.logger.error(f"Failed to import blueprint {name} from {module_path}: {str(e)}")
+            app.logger.error(f'Failed to import blueprint {name}: {str(e)}')
             raise
         except Exception as e:
-            app.logger.error(f"Failed to register blueprint {name}: {str(e)}")
+            app.logger.error(f'Failed to register blueprint {name}: {str(e)}')
             raise
+
+    # Log final configuration status
+    app.logger.info('Google Drive: %s', 'enabled' if app.config['USE_GOOGLE_DRIVE'] else 'disabled')
+    app.logger.info('Database: PostgreSQL with connection pooling')
+    app.logger.info('Upload path: %s', os.path.abspath(app.config['UPLOAD_FOLDER']))
+    app.logger.info('Application initialization completed')
 
     return app
