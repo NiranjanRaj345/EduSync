@@ -1,82 +1,66 @@
 from datetime import datetime
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from app import db, login
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from flask import current_app
+import logging
+from . import db, login_manager
+
+logger = logging.getLogger(__name__)
 
 class User(UserMixin, db.Model):
-    """User model for authentication and database storage."""
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(20), nullable=False)  # student or faculty
-    first_name = db.Column(db.String(64), nullable=False)
-    last_name = db.Column(db.String(64), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'student' or 'faculty'
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    uploaded_documents = db.relationship(
-        'Document',
-        foreign_keys='Document.uploader_id',
-        backref='uploader',
-        lazy='dynamic'
-    )
-    assigned_documents = db.relationship(
-        'Document',
-        foreign_keys='Document.assigned_faculty_id',
-        backref='assigned_faculty',
-        lazy='dynamic'
-    )
-    reviewed_documents = db.relationship(
-        'Document',
-        foreign_keys='Document.reviewer_id',
-        backref='reviewer',
-        lazy='dynamic'
-    )
-
-    def set_password(self, password):
-        """Set hashed password."""
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        """Check if password matches hash."""
-        return check_password_hash(self.password_hash, password)
+    uploaded_documents = db.relationship('Document', backref='uploader', lazy=True,
+                                      foreign_keys='Document.uploader_id')
+    assigned_documents = db.relationship('Document', backref='assigned_faculty', lazy=True,
+                                      foreign_keys='Document.assigned_faculty_id')
+    reviewed_documents = db.relationship('Document', backref='reviewer', lazy=True,
+                                       foreign_keys='Document.reviewer_id')
 
     def __repr__(self):
         return f'<User {self.email}>'
 
 class Document(db.Model):
-    """Document model for storing uploaded files and reviews."""
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     original_filename = db.Column(db.String(255), nullable=False)
-    file_path = db.Column(db.String(255))
-    file_type = db.Column(db.String(50))
+    file_path = db.Column(db.String(512), nullable=False)
+    file_type = db.Column(db.String(50), nullable=False)
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='pending_review')  # pending_review, reviewed
     
-    # Google Drive fields
-    gdrive_file_id = db.Column(db.String(100))
-    gdrive_view_link = db.Column(db.String(255))
-    
-    # User relationships
+    # Foreign Keys
     uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     assigned_faculty_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
-    # Review fields
-    review_file1_path = db.Column(db.String(255))
-    review_file2_path = db.Column(db.String(255))
-    gdrive_review1_id = db.Column(db.String(100))
-    gdrive_review2_id = db.Column(db.String(100))
-    gdrive_review1_link = db.Column(db.String(255))
-    gdrive_review2_link = db.Column(db.String(255))
-    review_date = db.Column(db.DateTime)
-
+    # Review Documents
+    review_file1_path = db.Column(db.String(512), nullable=True)
+    review_file2_path = db.Column(db.String(512), nullable=True)
+    review_date = db.Column(db.DateTime, nullable=True)
+    
     def __repr__(self):
         return f'<Document {self.original_filename}>'
 
-# Setup Flask-Login user loader
-@login.user_loader
-def load_user(id):
-    """Load user by ID for Flask-Login."""
-    return User.query.get(int(id))
+@login_manager.user_loader
+def load_user(user_id):
+    retries = 3
+    while retries > 0:
+        try:
+            return User.query.get(int(user_id))
+        except OperationalError as e:
+            retries -= 1
+            logger.warning(f"Database connection error, retries left: {retries}. Error: {str(e)}")
+            if retries == 0:
+                logger.error(f"Failed to load user after 3 retries. Error: {str(e)}")
+                return None
+        except SQLAlchemyError as e:
+            logger.error(f"Database error while loading user: {str(e)}")
+            return None

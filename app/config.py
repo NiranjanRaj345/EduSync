@@ -43,9 +43,6 @@ class Config:
     
     # File Upload
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app/uploads'))
-    USE_GOOGLE_DRIVE = os.getenv('USE_GOOGLE_DRIVE', 'True').lower() == 'true'
-    GOOGLE_DRIVE_CREDENTIALS = os.getenv('GOOGLE_DRIVE_CREDENTIALS', 'credentials.json')
-    GOOGLE_DRIVE_TOKEN = os.getenv('GOOGLE_DRIVE_TOKEN', 'token.pickle')
     # 20MB max file size
     MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', '20971520'))
     ALLOWED_EXTENSIONS = {

@@ -22,54 +22,25 @@ def allowed_file(filename):
     return True
 
 def save_file(file, directory):
-    """Save file and optionally upload to Google Drive"""
+    """Save file with secure filename in specified directory"""
     filename = secure_filename(file.filename)
     # Add timestamp to filename to prevent overwriting
     name, ext = os.path.splitext(filename)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f"{name}_{timestamp}{ext}"
     
-    file_path = None
-    gdrive_file_id = None
-    gdrive_view_link = None
+    upload_path = current_app.config['UPLOAD_FOLDER']
+    if not os.path.isabs(upload_path):
+        upload_path = os.path.abspath(upload_path)
+    path = os.path.join(upload_path, directory)
+    os.makedirs(path, exist_ok=True)
     
     try:
-        if not current_app.config['USE_GOOGLE_DRIVE']:
-            # Save locally
-            upload_path = current_app.config['UPLOAD_FOLDER']
-            if not os.path.isabs(upload_path):
-                upload_path = os.path.abspath(upload_path)
-            path = os.path.join(upload_path, directory)
-            os.makedirs(path, exist_ok=True)
-            file_path = os.path.join(path, filename)
-            file.save(file_path)
-            logger.info(f"File saved locally at: {file_path}")
-        else:
-            # Save temporarily and upload to Google Drive
-            temp_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'temp')
-            os.makedirs(temp_path, exist_ok=True)
-            temp_file_path = os.path.join(temp_path, filename)
-            file.save(temp_file_path)
-            
-            try:
-                from app.utils.google_drive import gdrive
-                gdrive_file_id, gdrive_view_link = gdrive.upload_file(
-                    temp_file_path,
-                    filename,
-                    mime_type=file.mimetype
-                )
-                logger.info(f"File uploaded to Google Drive with ID: {gdrive_file_id}")
-            finally:
-                # Clean up temporary file
-                if os.path.exists(temp_file_path):
-                    os.remove(temp_file_path)
-        
-        return {
-            'filename': filename,
-            'file_path': os.path.join(directory, filename) if file_path else None,
-            'gdrive_file_id': gdrive_file_id,
-            'gdrive_view_link': gdrive_view_link
-        }
+        file_path = os.path.join(path, filename)
+        os.makedirs(path, exist_ok=True)  # Ensure directory exists
+        file.save(file_path)
+        logger.info(f"File saved successfully at: {file_path}")
+        return filename
     except Exception as e:
         logger.error(f"Error saving file {filename}: {str(e)}")
         raise
@@ -127,29 +98,26 @@ def upload_document():
         try:
             # Save file with student's ID in the path
             directory = f"student_{current_user.id}"
-            save_result = save_file(file, directory)
+            filename = save_file(file, directory)
             
             # Create document record
             document = Document(
-                filename=save_result['filename'],
+                filename=filename,
                 original_filename=secure_filename(file.filename),
-                file_path=save_result['file_path'],
+                file_path=os.path.join(directory, filename),
                 file_type=file.filename.rsplit('.', 1)[1].lower(),
                 uploader_id=current_user.id,
-                assigned_faculty_id=faculty.id,
-                gdrive_file_id=save_result['gdrive_file_id'],
-                gdrive_view_link=save_result['gdrive_view_link']
+                assigned_faculty_id=faculty.id
             )
             
             db.session.add(document)
             db.session.commit()
             
-            logger.info(f"Document {save_result['filename']} uploaded successfully by user {current_user.id}")
+            logger.info(f"Document {filename} uploaded successfully by user {current_user.id}")
             flash('Document uploaded successfully', 'success')
             return redirect(url_for('student.dashboard'))
             
         except Exception as e:
-            db.session.rollback()
             logger.error(f"Error in document upload: {str(e)}")
             flash(f'Error uploading document: {str(e)}', 'danger')
             return redirect(request.url)

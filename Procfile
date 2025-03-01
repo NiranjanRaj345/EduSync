@@ -1,1 +1,1 @@
-web: gunicorn -w 4 -k gevent "manage:app"
+web: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 run:app
