@@ -4,11 +4,32 @@ from datetime import timedelta
 from logging.handlers import RotatingFileHandler
 
 class Config:
-    # Flask
+    # Flask and Session Config
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Redis Session Config
+    SESSION_TYPE = 'redis'
+    
+    @staticmethod
+    def init_redis():
+        """Initialize Redis connection with proper error handling"""
+        import redis
+        redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+        try:
+            client = redis.from_url(redis_url, socket_timeout=5)
+            client.ping()  # Test connection
+            return client
+        except redis.ConnectionError as e:
+            raise Exception(f"Redis connection failed: {str(e)}")
+            
+    SESSION_REDIS = init_redis.__get__(object)  # Make it a static method
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    SESSION_REFRESH_EACH_REQUEST = True
+    SESSION_KEY_PREFIX = 'edusync:'
+    SESSION_USE_SIGNER = True  # Enable cryptographic signing
     
     # Database
     @staticmethod

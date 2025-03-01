@@ -8,14 +8,16 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_session import Session
 from dotenv import load_dotenv
 from app.config import config
+import redis
 import os
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions with connection pooling
+# Initialize Flask extensions
 db = SQLAlchemy(engine_options={
     'pool_size': 10,
     'pool_recycle': 3600,
@@ -26,6 +28,7 @@ migrate = Migrate()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
 mail = Mail()
+sess = Session()
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri="memory://",
@@ -40,6 +43,25 @@ def create_app(config_name=None):
     # Load config
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    
+    # Initialize Redis and Session
+    try:
+        # Get Redis client
+        if callable(app.config['SESSION_REDIS']):
+            redis_client = app.config['SESSION_REDIS']()
+        else:
+            redis_client = app.config['SESSION_REDIS']
+            
+        # Test Redis connection
+        if isinstance(redis_client, redis.Redis):
+            redis_client.ping()
+            app.logger.info("Redis connection established successfully")
+        else:
+            raise Exception("Invalid Redis client configuration")
+            
+    except Exception as e:
+        app.logger.error(f"Redis initialization failed: {str(e)}")
+        raise RuntimeError(f"Could not initialize Redis: {str(e)}")
     
     # Initialize extensions with app and configure database retry
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -61,6 +83,14 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
+    
+    # Initialize session after Redis is confirmed working
+    try:
+        sess.init_app(app)
+        app.logger.info("Flask-Session initialized successfully")
+    except Exception as e:
+        app.logger.error(f"Session initialization failed: {str(e)}")
+        raise RuntimeError(f"Could not initialize sessions: {str(e)}")
     
     # Configure login manager
     login_manager.login_view = 'auth.login'
