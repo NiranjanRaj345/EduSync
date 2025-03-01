@@ -1,8 +1,11 @@
 import os
+import base64
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 import logging
+import json
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +22,28 @@ class GoogleDriveService:
         return cls._instance
 
     def _get_service(self):
-        """Creates Drive API service using service account credentials."""
+        """Creates Drive API service using service account credentials or base64 encoded credentials."""
         try:
-            credentials = service_account.Credentials.from_service_account_file(
-                os.getenv('GOOGLE_DRIVE_CREDENTIALS', 'service-account.json'),
-                scopes=SCOPES
-            )
+            credentials = None
+            # Check for base64 encoded credentials first (for Koyeb)
+            b64_creds = os.getenv('GOOGLE_DRIVE_CREDENTIALS_B64')
+            if b64_creds:
+                logger.info("Using base64 encoded credentials")
+                creds_json = base64.b64decode(b64_creds)
+                with tempfile.NamedTemporaryFile(mode='w+') as tmp:
+                    tmp.write(creds_json.decode('utf-8'))
+                    tmp.flush()
+                    credentials = service_account.Credentials.from_service_account_file(
+                        tmp.name,
+                        scopes=SCOPES
+                    )
+            else:
+                # Fall back to file-based credentials
+                logger.info("Using file-based credentials")
+                credentials = service_account.Credentials.from_service_account_file(
+                    os.getenv('GOOGLE_DRIVE_CREDENTIALS', 'service-account.json'),
+                    scopes=SCOPES
+                )
             return build('drive', 'v3', credentials=credentials)
         except Exception as e:
             logger.error(f"Error building Drive service: {str(e)}")

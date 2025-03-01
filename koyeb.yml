@@ -1,94 +1,47 @@
-app: edusync
-regions: ["fra"]
-services:
-  - name: web
-    instance_types:
-      - name: nano
-    git:
-      repository: NiranjanRaj345/EduSync
-      branch: main
-    ports:
-      - port: 8000
-        http: "/"
+name: edusync
+service:
+  app:
+    instance_type: free
     env:
-      - name: SERVER_NAME
-        value: edusync.koyeb.app
       - name: FLASK_APP
         value: run.py
       - name: FLASK_ENV
         value: production
-      - name: DATABASE_URL
-        secret: NEON_DATABASE_URL
-      - name: REDIS_URL
-        value: redis://redis:6379/0
-      - name: DB_POOL_SIZE
-        value: "5"  # Reduced pool size for Neon
-      - name: DB_POOL_RECYCLE
-        value: "1800"  # 30 minutes connection recycling
-      - name: DB_POOL_TIMEOUT
-        value: "30"
-      - name: DB_MAX_OVERFLOW
-        value: "2"  # Limited overflow for Neon stability
+      - name: USE_GOOGLE_DRIVE
+        value: "True"
+      - name: GOOGLE_DRIVE_CREDENTIALS_B64
+        fromSecret: GOOGLE_DRIVE_CREDENTIALS_B64
+      - name: GOOGLE_DRIVE_FOLDER_ID
+        fromSecret: GOOGLE_DRIVE_FOLDER_ID
       - name: SECRET_KEY
-        secret: FLASK_SECRET_KEY
-      - name: MAX_CONTENT_LENGTH
-        value: "20971520"  # 20MB file size limit
-      - name: GOOGLE_DRIVE_KEY_PATH
-        secret: GOOGLE_DRIVE_KEY
-      # Google Drive Configuration
-      - name: GOOGLE_DRIVE_PARENT_FOLDER
-        value: "1X6gdJ3pM2DsnkWGGu9R5mBKwjgdV0mpg"  # Main folder ID
-      - name: GOOGLE_SERVICE_ACCOUNT
-        value: "edusync-service@edusync-service.iam.gserviceaccount.com"
-      - name: GOOGLE_CREDENTIALS_JSON
-        secret: GOOGLE_CREDENTIALS  # Will be set in Koyeb secrets
+        fromSecret: SECRET_KEY
+      - name: DATABASE_URL
+        fromSecret: DATABASE_URL
+      - name: REDIS_URL
+        fromSecret: REDIS_URL
       - name: MAIL_SERVER
         value: smtp.gmail.com
       - name: MAIL_PORT
         value: "587"
       - name: MAIL_USE_TLS
         value: "True"
-      # Session Configuration
-      - name: SESSION_TYPE
-        value: "redis"
-      - name: PERMANENT_SESSION_LIFETIME
-        value: "86400"  # 24 hours in seconds
-      - name: SESSION_USE_SIGNER
-        value: "True"
-      - name: SESSION_KEY_PREFIX
-        value: "edusync:"
-      - name: SESSION_COOKIE_NAME
-        value: "__Host-session"
       - name: MAIL_USERNAME
-        secret: MAIL_USERNAME
+        fromSecret: MAIL_USERNAME
       - name: MAIL_PASSWORD
-        secret: MAIL_PASSWORD
-      - name: GOOGLE_CLIENT_ID
-        secret: GOOGLE_CLIENT_ID
-      - name: GOOGLE_CLIENT_SECRET
-        secret: GOOGLE_CLIENT_SECRET
-      - name: GOOGLE_PROJECT_ID
-        secret: GOOGLE_PROJECT_ID
-      - name: GOOGLE_AUTH_URI
-        value: "https://accounts.google.com/o/oauth2/auth"
-      - name: GOOGLE_TOKEN_URI
-        value: "https://oauth2.googleapis.com/token"
-      - name: GOOGLE_AUTH_PROVIDER_CERT_URL
-        value: "https://www.googleapis.com/oauth2/v1/certs"
-      - name: GOOGLE_REDIRECT_URI
-        value: "https://edusync.koyeb.app/auth/google/callback"
-      # Google Drive Configuration
-      - name: GOOGLE_DRIVE_CREDENTIALS
-        secret: GDRIVE_CREDENTIALS  # Base64 encoded credentials.json content
-      - name: GOOGLE_DRIVE_FOLDER_ID
-        secret: GDRIVE_FOLDER_ID
-      - name: USE_GOOGLE_DRIVE
-        value: "True"
-    build:
-      builder: buildpack
-    healthcheck:
+        fromSecret: MAIL_PASSWORD
+    ports:
+      - port: 8000
+        protocol: http
+    routes:
+      - path: /
+        port: 8000
+    buildCommand: pip install -r requirements.txt
+    runCommand: gunicorn -w 4 -k gevent "run:create_app()"
+    healthCheck:
       port: 8000
-      path: /
-      initial_delay: 30s
+      path: /health
+      initialDelay: 30s
+      interval: 15s
       timeout: 10s
-      interval: 30s
+      successThreshold: 1
+      failureThreshold: 3
