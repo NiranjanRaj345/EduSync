@@ -115,6 +115,9 @@ def create_app(config_class: Optional[object] = None) -> Flask:
         app.logger.info('Google Drive: %s', 'enabled' if app.config['USE_GOOGLE_DRIVE'] else 'disabled')
         app.logger.info('Database: PostgreSQL with connection pooling')
         app.logger.info('Upload path: %s', os.path.abspath(app.config['UPLOAD_FOLDER']))
+
+    # Import models here to avoid circular imports
+    from app import models  # noqa: E402
         
     # Register blueprints with better error handling
     blueprints = {
@@ -139,6 +142,3 @@ def create_app(config_class: Optional[object] = None) -> Flask:
             raise
 
     return app
-
-# Import models to register them with SQLAlchemy
-from app import models
