@@ -1,6 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import login_required, current_user
-from app.auth import check_active_session
 from app import db, limiter
 from app.faculty import bp
 from app.models import Document, User
@@ -50,7 +49,6 @@ def save_file(file, directory):
 @bp.route('/faculty/dashboard')
 @limiter.limit("100/hour")
 @login_required
-@check_active_session
 def dashboard():
     if current_user.role != 'faculty':
         flash('Access denied. Faculty only.', 'danger')
@@ -76,7 +74,6 @@ def dashboard():
 @bp.route('/faculty/document/<int:id>')
 @limiter.limit("100/hour")
 @login_required
-@check_active_session
 def view_document(id):
     if current_user.role != 'faculty':
         flash('Access denied. Faculty only.', 'danger')
@@ -99,7 +96,6 @@ def view_document(id):
 @bp.route('/faculty/upload_review/<int:doc_id>', methods=['GET', 'POST'])
 @limiter.limit(Config.UPLOAD_RATELIMIT)
 @login_required
-@check_active_session
 def upload_review(doc_id):
     if current_user.role != 'faculty':
         flash('Access denied. Faculty only.', 'danger')
@@ -165,7 +161,6 @@ def upload_review(doc_id):
 
 @bp.route('/faculty/reviewed')
 @login_required
-@check_active_session
 def reviewed_documents():
     if current_user.role != 'faculty':
         flash('Access denied. Faculty only.', 'danger')

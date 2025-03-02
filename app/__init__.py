@@ -8,17 +8,15 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_session import Session
 from dotenv import load_dotenv
 from app.config import config
-import redis
 import os
 import time
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions
+# Initialize Flask extensions with connection pooling
 db = SQLAlchemy(engine_options={
     'pool_size': 10,
     'pool_recycle': 3600,
@@ -29,7 +27,6 @@ migrate = Migrate()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
 mail = Mail()
-sess = Session()
 limiter = Limiter(
     key_func=get_remote_address,
     storage_uri="memory://",
@@ -45,6 +42,7 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
+<<<<<<< HEAD
     # Initialize Redis and Session with retries
     max_retries = 3
     retry_delay = 2  # seconds
@@ -95,6 +93,8 @@ def create_app(config_name=None):
         app.logger.error(f"Session initialization failed: {str(e)}")
         raise RuntimeError(f"Could not initialize sessions: {str(e)}")
     
+=======
+>>>>>>> parent of 707a35c (added redis as our session manager)
     # Initialize extensions with app and configure database retry
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': 10,
