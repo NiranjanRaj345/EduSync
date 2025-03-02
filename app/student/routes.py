@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request, current_app
 from flask_login import login_required, current_user
+from app.auth import check_active_session
 from app import db, limiter
 from app.student import bp
 from app.models import Document, User
@@ -47,6 +48,7 @@ def save_file(file, directory):
 
 @bp.route('/student/dashboard')
 @login_required
+@check_active_session
 def dashboard():
     if current_user.role != 'student':
         logger.warning(f"Non-student user {current_user.id} attempted to access student dashboard")
@@ -60,6 +62,7 @@ def dashboard():
 
 @bp.route('/student/upload_document', methods=['GET', 'POST'])
 @login_required
+@check_active_session
 @limiter.limit(Config.UPLOAD_RATELIMIT)
 def upload_document():
     if current_user.role != 'student':
@@ -126,6 +129,7 @@ def upload_document():
 
 @bp.route('/student/document/<int:id>')
 @login_required
+@check_active_session
 def view_document(id):
     if current_user.role != 'student':
         logger.warning(f"Non-student user {current_user.id} attempted to view document {id}")
