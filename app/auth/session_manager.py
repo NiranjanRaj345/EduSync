@@ -2,85 +2,50 @@ from flask import session
 from datetime import datetime, timedelta
 from functools import wraps
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
-def check_session_expired(session_data):
-    """Check if a session has expired"""
-    try:
-        login_time = session_data.get('login_time')
-        if login_time:
-            from flask import current_app
-            login_datetime = datetime.fromisoformat(login_time)
-            session_lifetime = current_app.config.get('PERMANENT_SESSION_LIFETIME', timedelta(hours=24))
-            return datetime.utcnow() - login_datetime > session_lifetime
-    except Exception as e:
-        logger.error(f"Error checking session expiry: {str(e)}")
-        return True
-    return False
-
 def cleanup_expired_sessions():
-    """Clean up expired sessions from storage backend"""
+    """Clean up expired sessions from Redis"""
     try:
         from flask import current_app
+        import redis
         
-        # Handle different session types
-        session_type = current_app.config.get('SESSION_TYPE')
-        
-        if session_type == 'redis':
-            import redis
-            import json
+        # Get Redis client from URL
+        redis_url = current_app.config.get('SESSION_REDIS')
+        if isinstance(redis_url, str):
+            redis_client = redis.from_url(redis_url)
+        else:
+            redis_client = redis_url
             
-            # Get Redis client from URL
-            redis_url = current_app.config.get('SESSION_REDIS')
-            if isinstance(redis_url, str):
-                redis_client = redis.from_url(redis_url)
-            else:
-                redis_client = redis_url
+        session_prefix = current_app.config.get('SESSION_KEY_PREFIX', 'session:')
+        
+        # Get all session keys
+        session_pattern = f"{session_prefix}*"
+        session_keys = redis_client.keys(session_pattern)
+        
+        # Check each session
+        for key in session_keys:
+            session_data = redis_client.get(key)
+            if not session_data:
+                continue
                 
-            session_prefix = current_app.config.get('SESSION_KEY_PREFIX', 'session:')
-            
-            # Clean Redis sessions
             try:
-                session_pattern = f"{session_prefix}*"
-                session_keys = redis_client.keys(session_pattern)
+                import json
+                session_dict = json.loads(session_data)
+                login_time = session_dict.get('login_time')
                 
-                # Process Redis sessions
-                for key in session_keys:
-                    try:
-                        session_data = redis_client.get(key)
-                        if session_data:
-                            session_dict = json.loads(session_data)
-                            if check_session_expired(session_dict):
-                                redis_client.delete(key)
-                                logger.info(f"Cleaned up expired Redis session: {key}")
-                    except Exception as e:
-                        logger.error(f"Error processing Redis session {key}: {str(e)}")
-                        
-            except redis.ConnectionError as e:
-                logger.error(f"Redis connection error during cleanup: {str(e)}")
-                return
-                
-        elif session_type == 'filesystem':
-            import pickle
-            from datetime import datetime
-            
-            session_dir = current_app.config.get('SESSION_FILE_DIR')
-            if not session_dir or not os.path.exists(session_dir):
-                return
-                
-            # Clean filesystem sessions
-            for filename in os.listdir(session_dir):
-                file_path = os.path.join(session_dir, filename)
-                try:
-                    with open(file_path, 'rb') as f:
-                        session_data = pickle.load(f)
-                        if check_session_expired(session_data):
-                            os.remove(file_path)
-                            logger.info(f"Cleaned up expired filesystem session: {filename}")
-                except Exception as e:
-                    logger.error(f"Error processing filesystem session {filename}: {str(e)}")
+                if login_time:
+                    login_datetime = datetime.fromisoformat(login_time)
+                    session_lifetime = current_app.config.get('PERMANENT_SESSION_LIFETIME', timedelta(hours=24))
+                    
+                    # Remove expired sessions
+                    if datetime.utcnow() - login_datetime > session_lifetime:
+                        redis_client.delete(key)
+                        logger.info(f"Cleaned up expired session: {key}")
+            except Exception as e:
+                logger.error(f"Error processing session {key}: {str(e)}")
+                continue
                     
     except Exception as e:
         logger.error(f"Session cleanup error: {str(e)}")
