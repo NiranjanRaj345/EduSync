@@ -1,32 +1,99 @@
-2025-02-24 15:00:06,376 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:00:40,038 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:00:41,971 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:03:27,729 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:04:16,987 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:05:57,157 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 15:05:58,092 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 16:23:20,896 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 16:23:21,963 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 16:32:22,030 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 16:59:00,988 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-24 16:59:17,516 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
-2025-02-25 11:45:07,196 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:68]
-2025-02-25 11:45:07,702 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:68]
-2025-02-25 12:55:01,002 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
-2025-02-25 12:55:02,573 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
-2025-02-25 12:55:13,387 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
-2025-02-25 12:55:38,185 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
-2025-02-25 12:55:59,034 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
-2025-02-25 17:59:34,011 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-25 17:59:34,984 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-25 18:43:59,857 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-25 18:44:01,087 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-25 18:55:16,416 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-25 18:55:17,372 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
-2025-02-26 15:15:51,358 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
-2025-02-26 15:15:52,353 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
-2025-02-26 17:27:25,065 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
-2025-02-26 17:27:26,195 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
-2025-02-27 10:34:11,216 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
-2025-02-27 10:34:12,181 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
-2025-02-27 10:37:14,707 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
+2025-03-02 11:00:35,437 INFO: Login successful for user: virtualshopping0.0.1.1@gmail.com (role: student) [in /home/monk/Github/dope/EduSync/app/auth/routes.py:39]
+2025-03-02 11:00:36,774 ERROR: Exception on /student/dashboard [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:1414]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/app/student/routes.py", line 59, in dashboard
+    return render_template('student/dashboard.html', documents=documents)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/monk/Github/dope/EduSync/app/templates/student/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/monk/Github/dope/EduSync/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/app/templates/student/dashboard.html", line 40, in block 'content'
+    <a href="{{ url_for('main.uploaded_file', filename=document.file_path) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 950, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.uploaded_file'. Did you forget to specify values ['filename']?
+2025-03-02 11:00:58,118 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 11:01:15,515 ERROR: Exception on /student/dashboard [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:1414]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/app/student/routes.py", line 59, in dashboard
+    return render_template('student/dashboard.html', documents=documents)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/monk/Github/dope/EduSync/app/templates/student/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/monk/Github/dope/EduSync/app/templates/base.html", line 186, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/app/templates/student/dashboard.html", line 40, in block 'content'
+    <a href="{{ url_for('main.uploaded_file', filename=document.file_path) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 950, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.uploaded_file'. Did you forget to specify values ['filename']?
+2025-03-02 11:03:44,740 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 11:04:17,025 INFO: Login attempt for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:21]
+2025-03-02 11:04:17,474 INFO: Login successful for user: virtualshopping0.0.1.1@gmail.com (role: student) [in /home/monk/Github/dope/EduSync/app/auth/routes.py:39]
