@@ -4,7 +4,7 @@ from datetime import timedelta
 from logging.handlers import RotatingFileHandler
 
 class Config:
-    # Flask and Session Config
+    # Flask
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True

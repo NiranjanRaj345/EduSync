@@ -30,11 +30,54 @@
 2025-02-27 10:34:11,216 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
 2025-02-27 10:34:12,181 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
 2025-02-27 10:37:14,707 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
-2025-02-28 17:23:50,571 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:24:09,192 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:24:21,807 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:24:24,203 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:25:10,736 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:28:42,147 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:29:22,998 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
-2025-02-28 17:29:53,719 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-01 18:10:21,567 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:124]
+2025-03-01 18:10:21,576 INFO: Session initialized with redis backend [in /home/monk/Github/dope/EduSync/app/__init__.py:56]
+2025-03-01 18:10:32,157 ERROR: Exception on /login [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:1414]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 357, in connect
+    sock = self.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/retry.py", line 62, in call_with_retry
+    return do()
+           ^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 358, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 730, in _connect
+    raise err
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 718, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1487, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1508, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 2005, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/base.py", line 305, in save_session
+    self._upsert_session(app.permanent_session_lifetime, session, store_id)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/redis/redis.py", line 81, in _upsert_session
+    self.client.set(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/commands/core.py", line 2335, in set
+    return self.execute_command("SET", *pieces, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/client.py", line 559, in execute_command
+    return self._execute_command(*args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/client.py", line 565, in _execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 1422, in get_connection
+    connection.connect()
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/redis/connection.py", line 363, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 111 connecting to localhost:6379. Connection refused.

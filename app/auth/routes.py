@@ -1,6 +1,5 @@
-from flask import render_template, redirect, url_for, flash, request, current_app, session
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from datetime import datetime
 from urllib.parse import urlparse
 from app import db, bcrypt
 import logging
@@ -31,23 +30,11 @@ def login():
                 flash('Invalid email or password', 'danger')
                 return redirect(url_for('auth.login'))
             
-            # Check for existing session
-            existing_session = session.get('user_id')
-            if existing_session and existing_session != user.id:
-                logger.warning(f"User {user.email} has an existing session")
-                flash('Another session is already active. Please try again later.', 'danger')
-                return redirect(url_for('auth.login'))
-            
             login_success = login_user(user, remember=form.remember_me.data)
             if not login_success:
                 logger.error(f"Login failed: Could not login user: {form.email.data}")
                 flash('Error during login. Please try again.', 'danger')
                 return redirect(url_for('auth.login'))
-            
-            # Set session data
-            session['user_id'] = user.id
-            session['login_time'] = datetime.utcnow().isoformat()
-            session.permanent = True
             
             logger.info(f"Login successful for user: {user.email} (role: {user.role})")
             next_page = request.args.get('next')
@@ -106,10 +93,6 @@ def signup():
 @bp.route('/logout')
 @login_required
 def logout():
-    user_id = session.get('user_id')
-    if user_id:
-        logger.info(f"Logging out user {user_id}")
-        session.clear()  # Clear all session data
     logout_user()
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('auth.login'))
