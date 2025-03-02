@@ -22,22 +22,23 @@ class Config:
     SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Database Connection Settings for Neon
+    # Database Connection Settings for Neon (Optimized for concurrent users)
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': int(os.getenv('DB_POOL_SIZE', '5')),  # Reduced pool size for Neon
-        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800')),  # Recycle every 30 minutes
-        'pool_pre_ping': True,  # Enable connection health checks
-        'pool_timeout': int(os.getenv('DB_POOL_TIMEOUT', '30')),
-        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '2')),  # Limited overflow for Neon
+        'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),      # Increased pool size
+        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '900')), # 15 minute recycle
+        'pool_pre_ping': True,                                   # Health checks
+        'pool_timeout': int(os.getenv('DB_POOL_TIMEOUT', '60')), # Increased timeout
+        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '10')), # More overflow connections
+        'pool_use_lifo': True,                                   # LIFO for better performance
         'connect_args': {
-            'connect_timeout': 10,
-            'application_name': 'edusync',  # Identify app in Neon logs
+            'connect_timeout': 20,                               # Increased timeout
+            'application_name': 'edusync',                       # App identifier
             'keepalives': 1,
-            'keepalives_idle': 30,
+            'keepalives_idle': 60,                              # Increased idle time
             'keepalives_interval': 10,
             'keepalives_count': 5,
-            'sslmode': 'verify-full',  # Stricter SSL for Neon
-            'options': '-c statement_timeout=30000'  # 30 second timeout
+            'sslmode': 'verify-full',                           # SSL security
+            'options': '-c statement_timeout=60000'             # 60 second timeout
         }
     }
     
@@ -109,22 +110,23 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SAMESITE = 'Lax'
     
-    # Production database settings optimized for Neon
+    # Production database settings optimized for concurrency
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': int(os.getenv('DB_POOL_SIZE', '5')),  # Conservative pool size
-        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800')),
+        'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),      # Increased pool
+        'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '900')), # Faster recycling
         'pool_pre_ping': True,
-        'pool_timeout': int(os.getenv('DB_POOL_TIMEOUT', '30')),
-        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '2')),
+        'pool_timeout': int(os.getenv('DB_POOL_TIMEOUT', '60')), # Longer timeout
+        'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '10')), # More overflow
+        'pool_use_lifo': True,                                   # Better performance
         'connect_args': {
-            'connect_timeout': 10,
+            'connect_timeout': 20,
             'application_name': 'edusync_production',
             'keepalives': 1,
-            'keepalives_idle': 30,
+            'keepalives_idle': 60,                              # Longer idle time
             'keepalives_interval': 10,
             'keepalives_count': 5,
             'sslmode': 'verify-full',
-            'options': '-c statement_timeout=30000'
+            'options': '-c statement_timeout=60000'             # Longer timeout
         }
     }
     
