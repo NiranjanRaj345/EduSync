@@ -10,54 +10,26 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
-    # Session Config with Redis primary, filesystem fallback
-    SESSION_TYPE = 'redis'  # Default to Redis
+    # Redis Session Config
+    SESSION_TYPE = 'redis'
+    
+    @staticmethod
+    def init_redis():
+        """Initialize Redis connection with proper error handling"""
+        import redis
+        redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+        try:
+            client = redis.from_url(redis_url, socket_timeout=5)
+            client.ping()  # Test connection
+            return client
+        except redis.ConnectionError as e:
+            raise Exception(f"Redis connection failed: {str(e)}")
+            
+    SESSION_REDIS = init_redis.__get__(object)  # Make it a static method
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     SESSION_REFRESH_EACH_REQUEST = True
-    SESSION_USE_SIGNER = True
     SESSION_KEY_PREFIX = 'edusync:'
-    
-    @classmethod
-    def init_redis(cls):
-        """Initialize Redis connection with Redis Cloud support"""
-        import redis
-        redis_url = os.getenv('REDIS_URL')
-        if not redis_url:
-            print("No Redis URL configured")
-            return None
-        
-        try:
-            # Redis Cloud specific configuration
-            client = redis.from_url(
-                redis_url,
-                socket_timeout=10,
-                socket_connect_timeout=10,
-                socket_keepalive=True,
-                retry_on_timeout=True,
-                retry_on_error=[redis.exceptions.ConnectionError],
-                retry=3,
-                ssl=True,
-                ssl_cert_reqs='none',  # Required for Redis Cloud
-                decode_responses=True
-            )
-            # Test connection
-            client.ping()
-            print("Redis Cloud connection successful")
-            return client
-        except Exception as e:
-            print(f"Redis connection error: {str(e)}")  # Debug print
-            return None
-
-    # Session configuration
-    SESSION_TYPE = 'redis'
-    SESSION_KEY_PREFIX = 'edusync:'
-    SESSION_USE_SIGNER = True
-    SESSION_REDIS = init_redis
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
-    
-    # Fallback configuration (will be used if Redis fails)
-    SESSION_FILE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'flask_session')
-    SESSION_FILE_THRESHOLD = 500
+    SESSION_USE_SIGNER = True  # Enable cryptographic signing
     
     # Database
     @staticmethod

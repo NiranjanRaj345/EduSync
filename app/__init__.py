@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 from app.config import config
 import redis
 import os
-import time
 
 # Load environment variables
 load_dotenv()
@@ -45,55 +44,24 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # Initialize Redis and Session with retries
-    max_retries = 3
-    retry_delay = 2  # seconds
-    
+    # Initialize Redis and Session
     try:
-        for attempt in range(max_retries):
-            app.logger.info(f"Redis connection attempt {attempt + 1}/{max_retries}")
+        # Get Redis client
+        if callable(app.config['SESSION_REDIS']):
+            redis_client = app.config['SESSION_REDIS']()
+        else:
+            redis_client = app.config['SESSION_REDIS']
             
-            if app.config['SESSION_TYPE'] == 'redis':
-                try:
-                    redis_client = None
-                    if callable(app.config['SESSION_REDIS']):
-                        app.logger.info("Initializing Redis Cloud client")
-                        redis_client = app.config['SESSION_REDIS']()
-                        
-                        if redis_client:
-                            # Test connection with retry
-                            retry_count = 0
-                            while retry_count < 3:
-                                try:
-                                    redis_client.ping()
-                                    app.logger.info("Redis Cloud connection established")
-                                    break
-                                except Exception as e:
-                                    retry_count += 1
-                                    if retry_count == 3:
-                                        raise
-                                    app.logger.warning(f"Redis ping attempt {retry_count} failed, retrying...")
-                                    time.sleep(1)
-                        else:
-                            raise Exception("Redis client initialization returned None")
-                except Exception as e:
-                    app.logger.error(f"Redis Cloud initialization failed: {str(e)}")
-                    if attempt == max_retries - 1:
-                        app.logger.info("Falling back to filesystem sessions after all retries")
-                        app.config['SESSION_TYPE'] = 'filesystem'
-                        os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
-                    else:
-                        time.sleep(retry_delay)
-                        continue
-            
-            # Initialize Session with chosen backend
-            sess.init_app(app)
-            app.logger.info(f"Session initialized with {app.config['SESSION_TYPE']} backend")
-            break  # Successfully initialized, break the retry loop
+        # Test Redis connection
+        if isinstance(redis_client, redis.Redis):
+            redis_client.ping()
+            app.logger.info("Redis connection established successfully")
+        else:
+            raise Exception("Invalid Redis client configuration")
             
     except Exception as e:
-        app.logger.error(f"Session initialization failed: {str(e)}")
-        raise RuntimeError(f"Could not initialize sessions: {str(e)}")
+        app.logger.error(f"Redis initialization failed: {str(e)}")
+        raise RuntimeError(f"Could not initialize Redis: {str(e)}")
     
     # Initialize extensions with app and configure database retry
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -115,6 +83,14 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
+    
+    # Initialize session after Redis is confirmed working
+    try:
+        sess.init_app(app)
+        app.logger.info("Flask-Session initialized successfully")
+    except Exception as e:
+        app.logger.error(f"Session initialization failed: {str(e)}")
+        raise RuntimeError(f"Could not initialize sessions: {str(e)}")
     
     # Configure login manager
     login_manager.login_view = 'auth.login'

@@ -44,9 +44,6 @@ koyeb.yml
 # IDE
 .idea/
 .vscode/
-.logs/
-*.log
-*.log.*
 *.swp
 *.swo
 
