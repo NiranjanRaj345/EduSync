@@ -20,12 +20,12 @@ load_dotenv()
 
 # Initialize Flask extensions
 db = SQLAlchemy(engine_options={
-    'pool_size': 20,            # Increased for more concurrent users
-    'pool_recycle': 900,        # Reduced to 15 minutes for better recycling
-    'pool_pre_ping': True,      # Keep enabled for connection health checks
-    'pool_timeout': 60,         # Increased for better timeout handling
-    'max_overflow': 10,         # Allow more overflow connections
-    'pool_use_lifo': True,      # Use LIFO for better performance
+    'pool_size': 20,
+    'pool_recycle': 900,
+    'pool_pre_ping': True,
+    'pool_timeout': 60,
+    'max_overflow': 10,
+    'pool_use_lifo': True,
 })
 migrate = Migrate()
 login_manager = LoginManager()
@@ -46,7 +46,6 @@ def create_app(config_name=None):
     if os.getenv('FLASK_ENV') != 'production':
         app.debug = True
         logging.basicConfig(level=logging.DEBUG)
-        # Enable Redis debug logging
         logging.getLogger('app.utils.redis_client').setLevel(logging.DEBUG)
     else:
         app.debug = False
@@ -66,11 +65,10 @@ def create_app(config_name=None):
         PERMANENT_SESSION_LIFETIME=timedelta(days=1)
     )
     
-    # Configure secret key if not set
     if not app.secret_key:
         app.secret_key = os.urandom(32)
     
-    # Initialize extensions with app
+    # Initialize extensions
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),
         'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '900')),
@@ -87,23 +85,12 @@ def create_app(config_name=None):
         }
     }
     
-    # Initialize core extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
-
-    # Setup event loop for async operations
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_closed():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
 
     # Initialize Redis and session handling
     if app.config.get('UPSTASH_REDIS_REST_URL') and app.config.get('UPSTASH_REDIS_REST_TOKEN'):
@@ -112,11 +99,9 @@ def create_app(config_name=None):
         redis_manager = RedisManager()
         try:
             redis_manager.init_app(app)
-            # Make redis_manager available to the app
             app.redis = redis_manager
-            # Use custom session interface with proper app context
             session_interface = UpstashRedisSessionInterface(
-                redis=redis_manager,  # Pass manager instead of client
+                redis=redis_manager,
                 app=app,
                 use_signer=True,
                 permanent=True
@@ -129,7 +114,7 @@ def create_app(config_name=None):
     else:
         app.logger.warning("Redis configuration not found, using default session interface")
     
-    # Configure login manager with secure settings
+    # Configure login manager
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
     login_manager.refresh_view = 'auth.login'
