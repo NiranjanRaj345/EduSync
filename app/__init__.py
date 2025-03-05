@@ -1,7 +1,11 @@
-from flask import Flask
+import logging
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
+from datetime import timedelta
+import asyncio
+import uvloop
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
@@ -15,7 +19,7 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask extensions with optimized connection pooling
+# Initialize Flask extensions
 db = SQLAlchemy(engine_options={
     'pool_size': 20,            # Increased for more concurrent users
     'pool_recycle': 900,        # Reduced to 15 minutes for better recycling
@@ -39,11 +43,35 @@ def create_app(config_name=None):
         config_name = 'production' if os.getenv('FLASK_ENV') == 'production' else 'default'
     app = Flask(__name__)
     
+    # Configure logging
+    if os.getenv('FLASK_ENV') != 'production':
+        app.debug = True
+        logging.basicConfig(level=logging.DEBUG)
+        # Enable Redis debug logging
+        logging.getLogger('app.utils.redis_client').setLevel(logging.DEBUG)
+    else:
+        app.debug = False
+        logging.basicConfig(level=logging.INFO)
+    
     # Load config
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     
-    # Initialize extensions with app and configure database retry
+    # Configure base session settings
+    app.config.update(
+        SESSION_COOKIE_NAME='edusync_session',
+        SESSION_COOKIE_SECURE=os.getenv('FLASK_ENV') == 'production',
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        SESSION_PERMANENT=True,
+        PERMANENT_SESSION_LIFETIME=timedelta(days=1)
+    )
+    
+    # Configure secret key if not set
+    if not app.secret_key:
+        app.secret_key = os.urandom(32)
+    
+    # Initialize extensions with app
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),
         'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '900')),
@@ -59,16 +87,52 @@ def create_app(config_name=None):
             'keepalives_count': 5
         }
     }
+    
+    # Initialize core extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
     limiter.init_app(app)
+
+    # Setup event loop for async operations
+    if os.getenv('FLASK_ENV') == 'production':
+        uvloop.install()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # Initialize Redis and session handling
+    if app.config.get('UPSTASH_REDIS_REST_URL') and app.config.get('UPSTASH_REDIS_REST_TOKEN'):
+        from app.utils.redis_client import RedisManager
+        from app.utils.session_interface import UpstashRedisSessionInterface
+        redis_manager = RedisManager()
+        try:
+            redis_manager.init_app(app)
+            # Make redis_manager available to the app
+            app.redis = redis_manager
+            # Use custom session interface with proper app context
+            session_interface = UpstashRedisSessionInterface(
+                redis=redis_manager,  # Pass manager instead of client
+                app=app,
+                use_signer=True,
+                permanent=True
+            )
+            app.session_interface = session_interface
+            app.logger.info("Redis session interface initialized successfully")
+        except Exception as e:
+            app.logger.error(f"Failed to initialize Redis: {str(e)}")
+            app.logger.warning("Falling back to default session interface")
+    else:
+        app.logger.warning("Redis configuration not found, using default session interface")
     
-    # Configure login manager
+    # Configure login manager with secure settings
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
+    login_manager.refresh_view = 'auth.login'
+    login_manager.needs_refresh_message = 'Please login again to confirm your identity'
+    login_manager.needs_refresh_message_category = 'info'
+    login_manager.session_protection = 'strong'
     
     # Register blueprints
     from app.auth import bp as auth_bp

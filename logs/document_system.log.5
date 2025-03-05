@@ -1,0 +1,121 @@
+2025-02-24 15:00:06,376 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:00:40,038 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:00:41,971 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:03:27,729 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:04:16,987 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:05:57,157 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 15:05:58,092 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 16:23:20,896 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 16:23:21,963 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 16:32:22,030 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 16:59:00,988 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-24 16:59:17,516 INFO: Document System startup [in /home/monk/Github/dope/proj/app/config.py:68]
+2025-02-25 11:45:07,196 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:68]
+2025-02-25 11:45:07,702 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:68]
+2025-02-25 12:55:01,002 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
+2025-02-25 12:55:02,573 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
+2025-02-25 12:55:13,387 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
+2025-02-25 12:55:38,185 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
+2025-02-25 12:55:59,034 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:76]
+2025-02-25 17:59:34,011 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-25 17:59:34,984 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-25 18:43:59,857 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-25 18:44:01,087 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-25 18:55:16,416 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-25 18:55:17,372 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:75]
+2025-02-26 15:15:51,358 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
+2025-02-26 15:15:52,353 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
+2025-02-26 17:27:25,065 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
+2025-02-26 17:27:26,195 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:93]
+2025-02-27 10:34:11,216 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
+2025-02-27 10:34:12,181 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
+2025-02-27 10:37:14,707 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:96]
+2025-03-02 10:31:17,984 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:31:18,967 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:34:21,761 ERROR: Database error during login: (psycopg2.errors.UndefinedTable) relation "user" does not exist
+LINE 2: FROM "user" 
+             ^
+
+[SQL: SELECT "user".id AS user_id, "user".email AS user_email, "user".password_hash AS user_password_hash, "user".role AS user_role, "user".first_name AS user_first_name, "user".last_name AS user_last_name, "user".created_at AS user_created_at 
+FROM "user" 
+WHERE "user".email = %(email_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'email_1': 'virtualshopping0.0.1.1@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405) [in /home/monk/Github/dope/EduSync/app/auth/routes.py:50]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "user" does not exist
+LINE 2: FROM "user" 
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/app/auth/routes.py", line 20, in login
+    user = User.query.filter_by(email=form.email.data).first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "user" does not exist
+LINE 2: FROM "user" 
+             ^
+
+[SQL: SELECT "user".id AS user_id, "user".email AS user_email, "user".password_hash AS user_password_hash, "user".role AS user_role, "user".first_name AS user_first_name, "user".last_name AS user_last_name, "user".created_at AS user_created_at 
+FROM "user" 
+WHERE "user".email = %(email_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'email_1': 'virtualshopping0.0.1.1@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-03-02 10:38:56,264 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:38:57,752 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:42:49,568 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:47:09,171 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:51:44,226 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:53:20,140 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:53:32,644 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:55:35,415 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:55:53,535 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 10:56:21,992 INFO: Login attempt for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:21]
+2025-03-02 10:56:21,993 WARNING: Login failed: User not found for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:24]
+2025-03-02 10:56:48,721 INFO: Login attempt for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:21]
+2025-03-02 10:56:48,722 WARNING: Login failed: User not found for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:24]
+2025-03-02 10:57:11,728 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 11:00:06,800 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:98]
+2025-03-02 11:00:34,996 INFO: Login attempt for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:21]

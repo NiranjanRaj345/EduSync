@@ -1,79 +1,119 @@
-2025-02-28 17:30:03,745 ERROR: Exception on /faculty/dashboard [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:828]
-Traceback (most recent call last):
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
-    self.dialect.do_execute(
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
-    cursor.execute(statement, parameters)
-psycopg2.errors.UndefinedColumn: column document.assigned_faculty_id does not exist
-LINE 1: ...us, document.uploader_id AS document_uploader_id, document.a...
-                                                             ^
-
-
-The above exception was the direct cause of the following exception:
-
+2025-03-03 09:52:45,318 ERROR: Request finalizing failed with an error while handling an error [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:901]
 Traceback (most recent call last):
   File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1463, in wsgi_app
     response = self.full_dispatch_request()
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 872, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 870, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 855, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_limiter/extension.py", line 1299, in __inner
-    return cast(R, flask.current_app.ensure_sync(obj)(*a, **k))
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/app/faculty/routes.py", line 57, in dashboard
-    ).order_by(Document.upload_date.desc()).all()
-                                            ^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2699, in all
-    return self._iter().all()  # type: ignore
-           ^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2853, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-                                                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
-    result = conn.execute(
-             ^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
-    return meth(
-           ^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1843, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2352, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
-    self.dialect.do_execute(
-  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column document.assigned_faculty_id does not exist
-LINE 1: ...us, document.uploader_id AS document_uploader_id, document.a...
-                                                             ^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 873, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object
 
-[SQL: SELECT document.id AS document_id, document.filename AS document_filename, document.original_filename AS document_original_filename, document.file_path AS document_file_path, document.file_type AS document_file_type, document.upload_date AS document_upload_date, document.status AS document_status, document.uploader_id AS document_uploader_id, document.assigned_faculty_id AS document_assigned_faculty_id, document.reviewer_id AS document_reviewer_id, document.review_file1_path AS document_review_file1_path, document.review_file2_path AS document_review_file2_path, document.review_date AS document_review_date 
-FROM document 
-WHERE document.assigned_faculty_id = %(assigned_faculty_id_1)s AND document.status = %(status_1)s ORDER BY document.upload_date DESC]
-[parameters: {'assigned_faculty_id_1': 13, 'status_1': 'pending_review'}]
-(Background on this error at: https://sqlalche.me/e/20/f405)
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object
+2025-03-03 09:53:19,813 ERROR: Exception on / [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:828]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 873, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object
+2025-03-03 09:53:19,816 ERROR: Request finalizing failed with an error while handling an error [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:901]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 873, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object
+2025-03-03 09:54:23,411 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:111]
+2025-03-03 09:54:25,947 ERROR: Exception on / [GET] [in /home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py:828]
+Traceback (most recent call last):
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1463, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 873, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 894, in finalize_request
+    response = self.process_response(response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask/app.py", line 1274, in process_response
+    self.session_interface.save_session(self, ctx.session, response)
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/flask_session/sessions.py", line 164, in save_session
+    response.set_cookie(app.config["SESSION_COOKIE_NAME"], session_id,
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/sansio/response.py", line 224, in set_cookie
+    dump_cookie(
+  File "/home/monk/Github/dope/EduSync/venv/lib/python3.12/site-packages/werkzeug/http.py", line 1303, in dump_cookie
+    if not _cookie_no_quote_re.fullmatch(value):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot use a string pattern on a bytes-like object

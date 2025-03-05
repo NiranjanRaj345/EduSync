@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 run:app
+web: gunicorn "app:create_app()" --workers 4 --threads 2 --worker-class aiohttp.worker.GunicornWebWorker --timeout 120 --access-logfile - --error-logfile -

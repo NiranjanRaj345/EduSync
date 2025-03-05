@@ -10,6 +10,18 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     
+    # Redis Configuration
+    UPSTASH_REDIS_REST_URL = os.getenv('UPSTASH_REDIS_REST_URL')
+    UPSTASH_REDIS_REST_TOKEN = os.getenv('UPSTASH_REDIS_REST_TOKEN')
+    
+    # Session Configuration
+    SESSION_TYPE = 'redis'
+    PERMANENT_SESSION_LIFETIME = timedelta(seconds=int(os.getenv('SESSION_LIFETIME', '86400')))  # 24 hours
+    SESSION_PERMANENT = True
+    SESSION_USE_SIGNER = True
+    SESSION_VALIDATION_ENABLED = True
+    SESSION_REFRESH_EACH_REQUEST = True
+    
     # Database
     @staticmethod
     def get_database_url():
