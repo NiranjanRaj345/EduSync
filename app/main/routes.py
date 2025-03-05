@@ -1,55 +1,48 @@
-from flask import send_from_directory, current_app, abort, redirect, url_for
-import logging
-
-logger = logging.getLogger(__name__)
-from flask_login import login_required, current_user
+from datetime import datetime
+import asyncio
+from flask import render_template, jsonify, current_app
 from app.main import bp
-from app.models import Document
-import os
+from app.utils.async_utils import async_route
 
 @bp.route('/')
-def index():
-    if current_user.is_authenticated:
-        if current_user.role == 'student':
-            return redirect(url_for('student.dashboard'))
-        else:
-            return redirect(url_for('faculty.dashboard'))
-    return redirect(url_for('auth.login'))
+@async_route
+async def index():
+    """Landing page."""
+    return render_template('main/index.html')
 
-@bp.route('/uploads/<path:filename>')
-@login_required
-def uploaded_file(filename):
-    # Security check - verify if user has access to the file
-    if filename.startswith('reviews/'):
-        # For review files, check if user is faculty or the student who owns the reviewed document
-        doc_id = filename.split('/')[1].split('_')[1]
-        document = Document.query.get(doc_id)
-        if not document:
-            abort(404)
-        if current_user.role == 'faculty' and document.assigned_faculty_id != current_user.id:
-            abort(403)
-        elif current_user.role == 'student' and document.uploader_id != current_user.id:
-            abort(403)
-    else:
-        # For student uploads, check if user owns the file or is assigned faculty
-        student_id = filename.split('/')[0].split('_')[1]
-        if current_user.role == 'student' and str(current_user.id) != student_id:
-            abort(403)
-        elif current_user.role == 'faculty':
-            document = Document.query.filter_by(file_path=filename).first()
-            if not document or document.assigned_faculty_id != current_user.id:
-                abort(403)
-
+@bp.route('/health')
+@async_route
+async def health_check():
+    """Health check endpoint for Render"""
+    from app import db
     try:
-        upload_path = current_app.config['UPLOAD_FOLDER']
-        if not os.path.isabs(upload_path):
-            upload_path = os.path.abspath(upload_path)
+        # Check database connection
+        db.session.execute('SELECT 1')
+        db.session.commit()
         
-        file_path = os.path.join(upload_path, filename)
-        directory = os.path.dirname(file_path)
-        file_name = os.path.basename(file_path)
+        # Check Redis connection if configured
+        redis_status = "not_configured"
+        if current_app.config.get('UPSTASH_REDIS_REST_URL'):
+            try:
+                redis_manager = current_app.redis
+                if redis_manager:
+                    ping_result = await redis_manager.ping()
+                    redis_status = "connected" if ping_result else "error: ping failed"
+            except Exception as e:
+                redis_status = f"error: {str(e)}"
         
-        return send_from_directory(directory, file_name)
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'database': 'connected',
+            'redis': redis_status,
+            'env': current_app.config['FLASK_ENV'],
+            'version': current_app.config.get('VERSION', '1.0.0')
+        }), 200
     except Exception as e:
-        logger.error(f"Error serving file {filename}: {str(e)}")
-        abort(404)
+        current_app.logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
