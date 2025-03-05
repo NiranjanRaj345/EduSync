@@ -2,7 +2,7 @@ services:
   - type: web
     name: edusync
     runtime: python
-    region: singapore
+    region: frankfurt
     plan: starter
     buildCommand: |
       # Install system dependencies
@@ -10,16 +10,7 @@ services:
       pip install -r requirements.txt
       # Initialize database
       flask db upgrade
-    startCommand: |
-      gunicorn run:app \
-        --bind=0.0.0.0:$PORT \
-        --worker-class=uvicorn.workers.UvicornWorker \
-        --workers=4 \
-        --timeout=120 \
-        --access-logfile=- \
-        --error-logfile=- \
-        --log-level=info \
-        --capture-output
+    startCommand: gunicorn run:app --worker-class=uvicorn.workers.UvicornWorker --workers=4 --bind=0.0.0.0:$PORT --timeout=120 --log-level=info
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -38,11 +29,13 @@ services:
       - key: UPLOAD_FOLDER
         value: /opt/render/project/src/uploads
       - key: MAX_CONTENT_LENGTH
-        value: "16777216" # 16MB max file size
-      - key: PORT
-        value: "10000"
-      - key: GUNICORN_CMD_ARGS
-        value: "--worker-class=uvicorn.workers.UvicornWorker --workers=4 --timeout=120"
+        value: "20971520"
+      - key: GUNICORN_TIMEOUT
+        value: "120"
+      - key: GUNICORN_LOG_LEVEL
+        value: "info"
+      - key: WEB_CONCURRENCY
+        value: "4"
       - key: PYTHONPATH
         value: /opt/render/project/src
     disk:
