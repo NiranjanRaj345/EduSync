@@ -6,61 +6,46 @@ A document management system for educational institutions.
 
 ### Prerequisites
 
-1. Render account (free tier)
-2. Upstash Redis account (free tier)
-3. Gmail account for SMTP (or alternative email service)
-
-### Pre-deployment Setup
-
-1. Create an Upstash Redis Database:
-   - Sign up at [Upstash](https://upstash.com/)
-   - Create a new Redis database
-   - Copy the REST API URL and Token
-
-2. Configure Email (Gmail):
-   - Enable 2FA on your Gmail account
-   - Generate an App Password
-   - Save the password for configuration
+1. Render account
+2. PostgreSQL database (can be provisioned on Render)
+3. Upstash Redis instance (for session management)
+4. SMTP server credentials (for email notifications)
 
 ### Environment Variables
 
-Required environment variables in Render dashboard:
+Configure the following in Render Dashboard:
 
 ```bash
-# Security
-SECRET_KEY=<generate-a-secure-random-key>
+# Required
+DATABASE_URL=your-postgres-url
+SECRET_KEY=your-secret-key
+UPSTASH_REDIS_REST_URL=your-redis-url
+UPSTASH_REDIS_REST_TOKEN=your-redis-token
+MAIL_USERNAME=your-email
+MAIL_PASSWORD=your-app-password
 
-# Redis Configuration
-UPSTASH_REDIS_REST_URL=<your-upstash-redis-url>
-UPSTASH_REDIS_REST_TOKEN=<your-upstash-redis-token>
-
-# Email Configuration
-MAIL_USERNAME=<your-gmail-address>
-MAIL_PASSWORD=<your-gmail-app-password>
+# Optional (defaults provided)
+FLASK_ENV=production
+GUNICORN_WORKERS=2
+PORT=8000
 ```
-
-Note: DATABASE_URL will be automatically configured by Render
 
 ### Deployment Steps
 
-1. Fork & Deploy:
-   - Fork this repository to your GitHub account
-   - Create a new Web Service in Render
-   - Connect your GitHub repository
-   - Select "Python" runtime
-   - Keep the auto-detected build and start commands
+1. Fork this repository
 
-2. Database Setup:
-   - Render will automatically create and configure PostgreSQL
-   - Database migrations will run automatically on deploy
+2. Create a new Web Service in Render:
+   - Connect your repository
+   - Select "Python"
+   - Set Build Command: `pip install -r requirements.txt`
+   - Set Start Command: `gunicorn wsgi:app`
 
-3. Storage Configuration:
-   - Disk will be automatically mounted at `/opt/render/project/src/uploads`
-   - 1GB storage included in free tier
+3. Set Environment Variables in Render Dashboard
 
-4. Environment Variables:
-   - Add all required environment variables in Render dashboard
-   - Ensure Redis and SMTP credentials are correct
+4. Enable Disk Storage:
+   - Add disk with name "uploads"
+   - Mount path: `/opt/render/project/src/uploads`
+   - Size: 1GB (free tier limit)
 
 ### Features
 
