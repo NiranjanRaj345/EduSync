@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
 from datetime import timedelta
 import asyncio
+import uvloop
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
@@ -96,14 +97,10 @@ def create_app(config_name=None):
     limiter.init_app(app)
 
     # Setup event loop for async operations
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_closed():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    if os.getenv('FLASK_ENV') == 'production':
+        uvloop.install()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     # Initialize Redis and session handling
     if app.config.get('UPSTASH_REDIS_REST_URL') and app.config.get('UPSTASH_REDIS_REST_TOKEN'):

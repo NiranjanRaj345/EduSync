@@ -8,17 +8,14 @@ services:
     startCommand: |
       export FLASK_APP=run.py
       export PYTHONPATH=$PYTHONPATH:$(pwd)
-      export PORT=${PORT:-8000}
       flask db upgrade
       mkdir -p uploads
-      gunicorn --bind=0.0.0.0:$PORT --log-level=debug --config gunicorn.conf.py wsgi:app
+      gunicorn --config gunicorn.conf.py wsgi:app
     plan: free
     region: oregon
     envVars:
       - key: FLASK_ENV
         value: production
-      - key: PORT
-        value: "8000"
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PYTHONUNBUFFERED
