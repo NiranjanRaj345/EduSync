@@ -2,11 +2,11 @@ import os
 import multiprocessing
 
 # Worker configuration
-workers = int(os.getenv('GUNICORN_WORKERS', multiprocessing.cpu_count() * 2 + 1))
-worker_class = 'uvicorn.workers.UvicornWorker'  # For async support
-worker_connections = 1000
-timeout = 120
-keepalive = 5
+workers = int(os.getenv('GUNICORN_WORKERS', 2))  # Reduced for free tier
+worker_class = 'sync'  # Standard synchronous worker
+worker_connections = 100  # Reduced for free tier
+timeout = 60  # Reduced timeout
+keepalive = 2  # Reduced keepalive
 
 # Logging
 accesslog = '-'

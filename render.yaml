@@ -2,10 +2,15 @@ services:
   - type: web
     name: edusync
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install -r requirements.txt
+      pip install psycopg2-binary
     startCommand: |
-      python init_db.py
-      gunicorn wsgi:app --config gunicorn.conf.py
+      export FLASK_APP=run.py
+      export PYTHONPATH=$PYTHONPATH:$(pwd)
+      flask db upgrade
+      mkdir -p uploads
+      gunicorn --config gunicorn.conf.py wsgi:app
     plan: free
     region: oregon
     envVars:
@@ -13,8 +18,6 @@ services:
         value: production
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: GUNICORN_WORKERS
-        value: 2
       - key: PYTHONUNBUFFERED
         value: "true"
       - key: SESSION_TYPE
@@ -23,6 +26,10 @@ services:
         value: "true"
       - key: PERMANENT_SESSION_LIFETIME
         value: "86400"
+      - key: GUNICORN_WORKERS
+        value: "2"
+      - key: GUNICORN_TIMEOUT
+        value: "60"
       # Secret values should be set in Render dashboard
       - key: SECRET_KEY
         sync: false
@@ -46,7 +53,7 @@ services:
         sync: false
 
     healthCheckPath: /
-    autoDeploy: false  # Changed to false for better control
+    autoDeploy: false
     disk:
       name: uploads
       mountPath: /opt/render/project/src/uploads
