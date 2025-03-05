@@ -55,6 +55,3 @@
 2025-03-05 11:44:36,796 INFO: Redis session interface initialized successfully [in /home/monk/Github/dope/EduSync/app/__init__.py:122]
 2025-03-05 11:45:04,235 INFO: Login attempt for email: virtualshopping0.0.1.1@gmail.com [in /home/monk/Github/dope/EduSync/app/auth/routes.py:23]
 2025-03-05 11:45:04,671 INFO: Login successful for user: virtualshopping0.0.1.1@gmail.com (role: student) [in /home/monk/Github/dope/EduSync/app/auth/routes.py:61]
-2025-03-05 13:48:42,610 INFO: Document System startup [in /home/monk/Github/dope/EduSync/app/config.py:111]
-2025-03-05 13:48:42,883 INFO: Redis client initialized successfully with connection pooling [in /home/monk/Github/dope/EduSync/app/utils/redis_client.py:51]
-2025-03-05 13:48:42,883 INFO: Redis session interface initialized successfully [in /home/monk/Github/dope/EduSync/app/__init__.py:122]
