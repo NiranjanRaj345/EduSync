@@ -1,4 +1,5 @@
 import asyncio
+import os
 from functools import wraps
 from flask import current_app
 
@@ -29,20 +30,30 @@ def async_route(f):
         
     return wrapper
 
-def setup_async():
+def setup_async(app=None):
     """Setup async environment based on FLASK_ENV"""
-    if current_app.config.get('ENV') == 'production':
-        # Use default event loop policy for production
-        policy = asyncio.get_event_loop_policy()
-        loop = policy.new_event_loop()
-    else:
-        # Use uvloop in development if available
-        try:
-            import uvloop
-            uvloop.install()
-        except ImportError:
-            pass
-        loop = asyncio.new_event_loop()
+    env = os.getenv('FLASK_ENV', 'production')
     
-    asyncio.set_event_loop(loop)
+    try:
+        if env == 'production':
+            # Use default event loop policy for production
+            policy = asyncio.get_event_loop_policy()
+            loop = policy.new_event_loop()
+            asyncio.set_event_loop(loop)
+        else:
+            # Use uvloop in development if available
+            try:
+                import uvloop
+                uvloop.install()
+            except ImportError:
+                pass
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+    except Exception as e:
+        if app:
+            app.logger.error(f"Error setting up async environment: {str(e)}")
+        # Fallback to default event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    
     return loop

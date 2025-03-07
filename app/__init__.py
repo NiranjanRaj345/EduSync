@@ -98,7 +98,7 @@ def create_app(config_name=None):
 
     # Setup async environment
     from app.utils.async_utils import setup_async
-    setup_async()
+    setup_async(app)
 
     # Initialize Redis and session handling
     if app.config.get('UPSTASH_REDIS_REST_URL') and app.config.get('UPSTASH_REDIS_REST_TOKEN'):
