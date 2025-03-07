@@ -1,6 +1,5 @@
 import asyncio
 from functools import wraps
-from asgiref.sync import async_to_sync
 from flask import current_app
 
 def async_route(f):
@@ -8,17 +7,42 @@ def async_route(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         try:
-            # Get the event loop for the current context
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            # If there's no event loop, create one
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-        try:
+            # First try to get existing loop
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_closed():
+                    raise RuntimeError("Loop is closed")
+            except RuntimeError:
+                # If there's no loop or it's closed, create a new one
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
             # Run the async function in the event loop
-            return loop.run_until_complete(f(*args, **kwargs))
+            with current_app.app_context():
+                result = loop.run_until_complete(f(*args, **kwargs))
+                
+            return result
+        
         except Exception as e:
-            current_app.logger.error(f"Error in async route: {str(e)}")
+            current_app.logger.error(f"Error in async route: {str(e)}", exc_info=True)
             raise
+        
     return wrapper
+
+def setup_async():
+    """Setup async environment based on FLASK_ENV"""
+    if current_app.config.get('ENV') == 'production':
+        # Use default event loop policy for production
+        policy = asyncio.get_event_loop_policy()
+        loop = policy.new_event_loop()
+    else:
+        # Use uvloop in development if available
+        try:
+            import uvloop
+            uvloop.install()
+        except ImportError:
+            pass
+        loop = asyncio.new_event_loop()
+    
+    asyncio.set_event_loop(loop)
+    return loop

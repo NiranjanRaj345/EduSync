@@ -96,11 +96,9 @@ def create_app(config_name=None):
     mail.init_app(app)
     limiter.init_app(app)
 
-    # Setup event loop for async operations
-    if os.getenv('FLASK_ENV') == 'production':
-        uvloop.install()
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    # Setup async environment
+    from app.utils.async_utils import setup_async
+    setup_async()
 
     # Initialize Redis and session handling
     if app.config.get('UPSTASH_REDIS_REST_URL') and app.config.get('UPSTASH_REDIS_REST_TOKEN'):
