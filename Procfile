@@ -1,1 +1,1 @@
-web: gunicorn "app:create_app()" --workers 4 --threads 2 --worker-class=sync --timeout 120 --access-logfile - --error-logfile -
+web: gunicorn "app:create_app()" --workers 4 --worker-class=gevent --worker-connections=1000 --timeout 120 --access-logfile - --error-logfile -
